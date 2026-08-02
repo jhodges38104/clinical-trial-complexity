@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clinical Trial Complexity Assessment Tool</title>
+  <meta name="description" content="Interactive go/no-go decision support tool for assessing clinical trial complexity across 5 dimensions and 34 criteria.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .score-btn {
+      transition: all 0.14s ease;
+      cursor: pointer;
+      border: 1.5px solid #e2e8f0;
+      background: #f8fafc;
+      color: #64748b;
+    }
+    .score-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
+    .score-btn.sel-0 { background: #16a34a !important; color: #fff !important; border-color: #15803d !important; }
+    .score-btn.sel-1 { background: #84cc16 !important; color: #fff !important; border-color: #65a30d !important; }
+    .score-btn.sel-2 { background: #f59e0b !important; color: #fff !important; border-color: #d97706 !important; }
+    .score-btn.sel-3 { background: #dc2626 !important; color: #fff !important; border-color: #b91c1c !important; }
+    .score-btn.sel-0 span, .score-btn.sel-1 span,
+    .score-btn.sel-2 span, .score-btn.sel-3 span { color: inherit !important; }
+    .accordion-body { overflow: hidden; transition: max-height 0.28s ease; }
+    .accordion-body.open  { max-height: 4000px; }
+    .accordion-body.shut  { max-height: 0; }
+    .chevron { transition: transform 0.22s ease; }
+    .chevron.rotated { transform: rotate(-90deg); }
+    .gauge-arc { transition: stroke-dashoffset 0.45s cubic-bezier(.4,0,.2,1), stroke 0.45s ease; }
+    @media (min-width: 1024px) {
+      .sticky-sidebar { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; scrollbar-width: thin; }
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .sticky-sidebar { position: static; max-height: none; }
+    }
+    .dim-pill { display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+    .flag-badge { animation: pulse-once 0.4s ease; }
+    @keyframes pulse-once { 0%{transform:scale(1)} 50%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9px; }
+    /* ── Upload Zone ── */
+    .upload-zone { border: 2px dashed #cbd5e1; background: #f8fafc; transition: all 0.2s ease; cursor: pointer; }
+    .upload-zone:hover, .upload-zone.drag-over { border-color: #3b82f6; background: #eff6ff; }
+    .upload-zone.has-file { border-color: #16a34a; background: #f0fdf4; }
+    /* ── Modals ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-box { background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      max-width: 600px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; }
+    .modal-box.modal-lg { max-width: 780px; }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.25rem 1.5rem; overflow-y: auto; flex: 1; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0;
+      display: flex; justify-content: flex-end; gap: 0.75rem; }
+    .ai-score-row { display: grid; grid-template-columns: 1fr 160px 90px; gap: 0.75rem;
+      align-items: start; padding: 0.55rem 0; border-bottom: 1px solid #f1f5f9; }
+    .ai-score-row:last-child { border-bottom: none; }
+    .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.75s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- ═══ HEADER ══════════════════════════════════════════════════════════════ -->
+<header class="bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-xl no-print">
+  <div class="max-w-screen-xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3 justify-between">
+    <div>
+      <div class="flex items-center gap-2">
+        <svg class="w-6 h-6 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <h1 class="text-xl font-bold tracking-tight">Clinical Trial Complexity Assessment</h1>
+      </div>
+      <p class="text-blue-200 text-xs mt-0.5 ml-8">Go / No-Go Decision Support · 5 Dimensions · 34 Criteria · OPAL / EFACCT Framework</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span id="progress-pill" class="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full font-medium">0 / 34 scored</span>
+      <button onclick="expandAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Expand All</button>
+      <button onclick="collapseAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Collapse All</button>
+      <button onclick="resetAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Reset</button>
+      <button onclick="exportJSON()" class="px-3 py-1.5 bg-white text-blue-900 hover:bg-blue-50 rounded-lg text-xs font-semibold transition">Export JSON</button>
+      <button onclick="window.print()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Print</button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-screen-xl mx-auto px-4 py-5">
+
+  <!-- ═══ TRIAL INFO ════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5 no-print">
+    <h2 class="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3">Trial Information</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div><label class="block text-xs text-slate-500 mb-1">Protocol #</label>
+        <input id="info-protocol" type="text" placeholder="STUDY-2025-001" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+      <div><label class="block text-xs text-slate-500 mb-1">Sponsor / CRO</label>
+        <input id="info-sponsor" type="text" placeholder="Sponsor name" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+      <div><label class="block text-xs text-slate-500 mb-1">Therapeutic Area</label>
+        <input id="info-ta" type="text" placeholder="e.g. Oncology" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+      <div><label class="block text-xs text-slate-500 mb-1">Assessor</label>
+        <input id="info-assessor" type="text" placeholder="Your name" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+      <div><label class="block text-xs text-slate-500 mb-1">Date</label>
+        <input id="info-date" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+      <div><label class="block text-xs text-slate-500 mb-1">Notes</label>
+        <input id="info-notes" type="text" placeholder="Optional notes" class="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"></div>
+    </div>
+  </div>
+
+
+  <!-- ═══ PROTOCOL UPLOAD ═══════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5 no-print">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <h2 class="text-sm font-bold text-slate-600 uppercase tracking-wider">AI Protocol Analysis</h2>
+        <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">Beta</span>
+      </div>
+      <button onclick="openApiKeyModal()" class="flex items-center gap-1.5 text-xs text-slate-500 hover:text-blue-600 transition">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+        </svg>
+        API Key
+      </button>
+    </div>
+    <p class="text-xs text-slate-500 mb-4">Upload a study protocol (PDF or DOCX). AI reads the document and suggests scores for all 34 criteria — you review and adjust before applying to the assessment.</p>
+
+    <!-- Drop Zone -->
+    <div id="upload-zone" class="upload-zone rounded-xl p-6 text-center"
+         onclick="document.getElementById('file-input').click()"
+         ondragover="event.preventDefault();this.classList.add('drag-over')"
+         ondragleave="this.classList.remove('drag-over')"
+         ondrop="handleDrop(event)">
+      <input id="file-input" type="file" accept=".pdf,.docx,.doc" class="hidden" onchange="handleFileSelect(event)">
+      <div id="upload-idle">
+        <svg class="w-10 h-10 mx-auto text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="text-slate-600 font-medium text-sm">Drop protocol file here, or <span class="text-blue-600 font-semibold">browse</span></p>
+        <p class="text-xs text-slate-400 mt-1">Accepts PDF · DOCX · DOC &nbsp;·&nbsp; Max 50 MB</p>
+      </div>
+      <div id="upload-ready" class="hidden">
+        <svg class="w-8 h-8 mx-auto text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p id="upload-filename" class="text-slate-700 font-semibold text-sm"></p>
+        <p id="upload-filesize" class="text-xs text-slate-400 mt-0.5"></p>
+      </div>
+    </div>
+
+    <!-- Action row -->
+    <div class="flex items-center gap-3 mt-3 flex-wrap">
+      <button id="analyze-btn" onclick="analyzeProtocol()" disabled
+        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Analyze with AI
+      </button>
+      <button id="clear-upload-btn" onclick="clearUpload()" class="hidden text-xs text-slate-400 hover:text-red-500 transition">✕ Clear file</button>
+      <p class="text-xs text-slate-400 ml-auto">Powered by GPT-4o mini · Your API key stays in your browser only</p>
+    </div>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-5">
+
+    <!-- ═══ LEFT: DIMENSION ACCORDIONS ══════════════════════════════════════ -->
+    <div class="flex-1 space-y-4" id="dims-panel"></div>
+
+    <!-- ═══ RIGHT: RESULTS PANEL ════════════════════════════════════════════ -->
+    <div class="lg:w-80 xl:w-88 sticky-sidebar space-y-4">
+
+      <!-- Score gauge + bars -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 text-center">Overall Complexity Score</h2>
+
+        <!-- SVG Gauge -->
+        <div class="flex justify-center mb-3">
+          <svg width="190" height="115" viewBox="0 0 190 115" aria-label="Complexity gauge">
+            <!-- Track -->
+            <path d="M 15 100 A 80 80 0 0 1 175 100" fill="none" stroke="#e2e8f0" stroke-width="15" stroke-linecap="round"/>
+            <!-- Fill arc -->
+            <path id="gauge-fill" d="M 15 100 A 80 80 0 0 1 175 100" fill="none" stroke="#16a34a" stroke-width="15"
+              stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" class="gauge-arc"/>
+            <!-- Score number -->
+            <text id="gauge-num" x="95" y="86" text-anchor="middle" font-size="34" font-weight="800" fill="#1e293b">—</text>
+            <!-- Label -->
+            <text id="gauge-lbl" x="95" y="106" text-anchor="middle" font-size="12" fill="#94a3b8">Complete assessment</text>
+          </svg>
+        </div>
+
+        <!-- Dimension progress bars -->
+        <div class="space-y-2" id="dim-bars"></div>
+      </div>
+
+      <!-- Radar chart -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-center">Complexity Profile</h3>
+        <div style="max-height:210px; position:relative;">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Decision output -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Recommendation</h3>
+        <div id="decision-badge" class="rounded-lg py-3 px-4 text-center bg-slate-100 text-slate-400 text-sm font-medium mb-2">
+          Complete the assessment
+        </div>
+        <p id="decision-rationale" class="text-xs text-slate-500 text-center"></p>
+        <div id="score-breakdown" class="mt-3 text-xs text-slate-400 space-y-0.5 hidden">
+          <div class="flex justify-between"><span>Overall score:</span><span id="bd-overall" class="font-bold"></span></div>
+          <div class="flex justify-between"><span>Dim 5 raw (Recruitment):</span><span id="bd-dim5" class="font-bold"></span></div>
+          <div class="flex justify-between"><span>Items scored:</span><span id="bd-scored" class="font-bold"></span></div>
+        </div>
+      </div>
+
+      <!-- Red flags -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dimension Alerts</h3>
+        <div id="flags-list" class="space-y-1.5 text-xs text-slate-400">No flags triggered yet</div>
+      </div>
+
+      <!-- Decision matrix reference table -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Decision Matrix</h3>
+        <p class="text-xs text-slate-400 mb-2">Overall score × Recruitment Complexity (Dim 5 raw)</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs border-collapse" id="matrix-tbl">
+            <thead>
+              <tr>
+                <th class="border border-slate-200 bg-slate-100 p-1.5 text-left text-slate-600">Overall</th>
+                <th class="border border-slate-200 bg-blue-50 p-1.5 text-center text-slate-600">Low (0–6)</th>
+                <th class="border border-slate-200 bg-blue-50 p-1.5 text-center text-slate-600">Med (7–12)</th>
+                <th class="border border-slate-200 bg-blue-50 p-1.5 text-center text-slate-600">High (13–18)</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- end results panel -->
+  </div><!-- end flex row -->
+</div><!-- end max-w container -->
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════════════════ -->
+<script>
+// ─── DIMENSION & ITEM DATA ───────────────────────────────────────────────────
+const DIMS = [
+  {
+    id:1, name:"Protocol Design & Study Complexity",
+    weight:1.2, maxRaw:21, maxWt:25.2, rfThresh:15,
+    color:"#3b82f6", bg:"#eff6ff",
+    items:[
+      {id:"1.1", name:"Trial Phase", opts:[
+        {s:0,d:"Phase IV / Observational"},
+        {s:1,d:"Phase III"},
+        {s:2,d:"Phase II"},
+        {s:3,d:"Phase I / First-in-Human"}
+      ]},
+      {id:"1.2", name:"Study Design Complexity", opts:[
+        {s:0,d:"Simple parallel / observational"},
+        {s:1,d:"Crossover / factorial"},
+        {s:2,d:"Adaptive randomization / dose-finding"},
+        {s:3,d:"Complex adaptive with multiple decision points"}
+      ]},
+      {id:"1.3", name:"Number of Treatment Arms", opts:[
+        {s:0,d:"Single / observational"},
+        {s:1,d:"Two arms"},
+        {s:2,d:"Three arms"},
+        {s:3,d:"Four or more arms"}
+      ]},
+      {id:"1.4", name:"Eligibility Criteria Complexity", opts:[
+        {s:0,d:"Broad (≤10 criteria)"},
+        {s:1,d:"Moderate (11–20 criteria)"},
+        {s:2,d:"Restrictive (21–30 criteria)"},
+        {s:3,d:"Highly restrictive (>30 or specialized testing required)"}
+      ]},
+      {id:"1.5", name:"Biomarker Requirements", opts:[
+        {s:0,d:"None required"},
+        {s:1,d:"Standard routine laboratory"},
+        {s:2,d:"Specialized send-out testing"},
+        {s:3,d:"Multiple specialized / novel assays"}
+      ]},
+      {id:"1.6", name:"Primary Endpoint Complexity", opts:[
+        {s:0,d:"Simple clinical or survival endpoint"},
+        {s:1,d:"Patient-reported outcome (PRO) / QoL"},
+        {s:2,d:"Composite or imaging endpoint"},
+        {s:3,d:"Novel endpoint / central adjudication required"}
+      ]},
+      {id:"1.7", name:"Protocol Amendment History", opts:[
+        {s:0,d:"Stable — no amendments anticipated"},
+        {s:1,d:"1–2 minor amendments"},
+        {s:2,d:"3–4 moderate amendments"},
+        {s:3,d:">4 amendments or major design changes"}
+      ]}
+    ]
+  },
+  {
+    id:2, name:"Operational Execution & Site Burden",
+    weight:1.5, maxRaw:24, maxWt:36.0, rfThresh:17,
+    color:"#8b5cf6", bg:"#f5f3ff",
+    items:[
+      {id:"2.1", name:"Number of Study Visits", opts:[
+        {s:0,d:"≤5 visits"},
+        {s:1,d:"6–10 visits"},
+        {s:2,d:"11–20 visits"},
+        {s:3,d:">20 visits"}
+      ]},
+      {id:"2.2", name:"Visit Duration", opts:[
+        {s:0,d:"<1 hour — routine visit"},
+        {s:1,d:"1–2 hours — standard procedures"},
+        {s:2,d:"2–4 hours — multiple procedures"},
+        {s:3,d:">4 hours — complex / inpatient"}
+      ]},
+      {id:"2.3", name:"Assessment Procedures", opts:[
+        {s:0,d:"Routine vitals and labs"},
+        {s:1,d:"Standard imaging or functional tests"},
+        {s:2,d:"Specialized procedures (PK, imaging)"},
+        {s:3,d:"Multiple specialized / invasive procedures"}
+      ]},
+      {id:"2.4", name:"Data Collection Burden", opts:[
+        {s:0,d:"Simple eCRF — minimal fields"},
+        {s:1,d:"Standard eCRF — moderate fields"},
+        {s:2,d:"Complex eCRF — extensive data points"},
+        {s:3,d:"Multiple systems / real-time / PRO support required"}
+      ]},
+      {id:"2.5", name:"Monitoring Intensity", opts:[
+        {s:0,d:"Remote or annual on-site monitoring"},
+        {s:1,d:"Every 6–12 months on-site"},
+        {s:2,d:"Every 2–6 months on-site"},
+        {s:3,d:"Monthly or 100% SDV (source data verification)"}
+      ]},
+      {id:"2.6", name:"Investigational Product Handling", opts:[
+        {s:0,d:"Oral drug — simple dispensing"},
+        {s:1,d:"Refrigerated storage or reconstitution required"},
+        {s:2,d:"IV infusion or complex preparation"},
+        {s:3,d:"Specialized storage / dedicated resources required"}
+      ]},
+      {id:"2.7", name:"Third-Party Coordination", opts:[
+        {s:0,d:"None required"},
+        {s:1,d:"Single vendor or CRO"},
+        {s:2,d:"Multiple vendors"},
+        {s:3,d:"Complex vendor network / decentralized components"}
+      ]},
+      {id:"2.8", name:"Safety Reporting Requirements", opts:[
+        {s:0,d:"Standard adverse event (AE) reporting"},
+        {s:1,d:"Enhanced AE monitoring"},
+        {s:2,d:"Real-time SAE / frequent reporting"},
+        {s:3,d:"Complex: DSMB / frequent safety labs / specialized reporting"}
+      ]}
+    ]
+  },
+  {
+    id:3, name:"Regulatory & Oversight Requirements",
+    weight:1.0, maxRaw:18, maxWt:18.0, rfThresh:13,
+    color:"#10b981", bg:"#f0fdf4",
+    items:[
+      {id:"3.1", name:"IRB / Ethics Review", opts:[
+        {s:0,d:"Standard review process"},
+        {s:1,d:"Expedited review — minor modifications"},
+        {s:2,d:"Full board review — vulnerable populations or sensitive"},
+        {s:3,d:"Multi-site or complex consent considerations"}
+      ]},
+      {id:"3.2", name:"Regulatory Submissions", opts:[
+        {s:0,d:"None required"},
+        {s:1,d:"Single submission (e.g., IND amendment)"},
+        {s:2,d:"Multiple or specialized submissions"},
+        {s:3,d:"Complex regulatory pathway or novel designation"}
+      ]},
+      {id:"3.3", name:"Informed Consent Complexity", opts:[
+        {s:0,d:"Standard single-signature consent"},
+        {s:1,d:"Lengthy consent / additional educational materials"},
+        {s:2,d:"Multi-stage consent or legally authorized representative (LAR)"},
+        {s:3,d:"Complex — multiple optional sub-studies or ongoing consent"}
+      ]},
+      {id:"3.4", name:"Data Privacy Requirements", opts:[
+        {s:0,d:"Standard HIPAA compliance"},
+        {s:1,d:"Enhanced security protocols"},
+        {s:2,d:"International data transfers or specialized requirements"},
+        {s:3,d:"Highly sensitive — exceptional security measures required"}
+      ]},
+      {id:"3.5", name:"Oversight Committees", opts:[
+        {s:0,d:"None required"},
+        {s:1,d:"Sponsor safety monitoring only"},
+        {s:2,d:"Independent DSMB or adjudication committee"},
+        {s:3,d:"Multiple committees / complex governance structure"}
+      ]},
+      {id:"3.6", name:"Audit / Inspection Risk", opts:[
+        {s:0,d:"Low risk — standard monitoring"},
+        {s:1,d:"Moderate risk — possible audit"},
+        {s:2,d:"High risk — likely audit"},
+        {s:3,d:"Very high risk — anticipated regulatory inspection"}
+      ]}
+    ]
+  },
+  {
+    id:4, name:"Resource & Workforce Capacity",
+    weight:1.3, maxRaw:21, maxWt:27.3, rfThresh:15,
+    color:"#f59e0b", bg:"#fffbeb",
+    items:[
+      {id:"4.1", name:"Coordinator Time Required", opts:[
+        {s:0,d:"<0.25 FTE"},
+        {s:1,d:"0.25–0.5 FTE"},
+        {s:2,d:"0.5–1.0 FTE"},
+        {s:3,d:">1.0 FTE or multiple coordinators needed"}
+      ]},
+      {id:"4.2", name:"Specialized Expertise Needed", opts:[
+        {s:0,d:"Standard site capabilities sufficient"},
+        {s:1,d:"Brief staff training required"},
+        {s:2,d:"Specialized experienced staff needed"},
+        {s:3,d:"Highly specialized skills or certification required"}
+      ]},
+      {id:"4.3", name:"Space & Equipment Requirements", opts:[
+        {s:0,d:"Standard exam room"},
+        {s:1,d:"Dedicated research space / standard equipment"},
+        {s:2,d:"Specialized equipment or procedure space required"},
+        {s:3,d:"Significant infrastructure investment required"}
+      ]},
+      {id:"4.4", name:"Pharmacy Resources", opts:[
+        {s:0,d:"None or minimal pharmacy involvement"},
+        {s:1,d:"Standard pharmacy services"},
+        {s:2,d:"Moderate — compounding or specialized storage"},
+        {s:3,d:"Intensive / specialized pharmacy capabilities required"}
+      ]},
+      {id:"4.5", name:"Laboratory Resources", opts:[
+        {s:0,d:"Routine commercial laboratory"},
+        {s:1,d:"Standard sample processing and storage"},
+        {s:2,d:"Specialized laboratory (e.g., −80°C freezer required)"},
+        {s:3,d:"Complex protocols / significant storage investment"}
+      ]},
+      {id:"4.6", name:"Budget Adequacy", opts:[
+        {s:0,d:"Budget clearly exceeds projected costs"},
+        {s:1,d:"Budget adequate with reasonable contingency"},
+        {s:2,d:"Marginally adequate — limited contingency"},
+        {s:3,d:"Budget insufficient for safe conduct"}
+      ]},
+      {id:"4.7", name:"Current Site Workload", opts:[
+        {s:0,d:"Significant available capacity"},
+        {s:1,d:"Moderate available capacity"},
+        {s:2,d:"Limited capacity — near maximum"},
+        {s:3,d:"At or over current capacity"}
+      ]}
+    ]
+  },
+  {
+    id:5, name:"Patient Population & Recruitment",
+    weight:1.0, maxRaw:18, maxWt:18.0, rfThresh:13,
+    color:"#ef4444", bg:"#fef2f2",
+    items:[
+      {id:"5.1", name:"Target Population Accessibility", opts:[
+        {s:0,d:"Large, readily accessible population"},
+        {s:1,d:"Moderate — accessible with standard outreach"},
+        {s:2,d:"Small — requires active recruitment effort"},
+        {s:3,d:"Very limited / rare disease population"}
+      ]},
+      {id:"5.2", name:"Enrollment Timeline", opts:[
+        {s:0,d:"Relaxed timeline / low enrollment rate"},
+        {s:1,d:"Moderate timeline and rate"},
+        {s:2,d:"Aggressive timeline / high enrollment rate"},
+        {s:3,d:"Very aggressive — likely unachievable"}
+      ]},
+      {id:"5.3", name:"Competing Studies", opts:[
+        {s:0,d:"No competing studies"},
+        {s:1,d:"Minimal competition — distinct populations"},
+        {s:2,d:"Moderate competition for same population"},
+        {s:3,d:"Direct competition / trial competes with standard of care"}
+      ]},
+      {id:"5.4", name:"Patient Burden", opts:[
+        {s:0,d:"Minimal burden — convenient participation"},
+        {s:1,d:"Moderate burden — manageable"},
+        {s:2,d:"Substantial burden — may deter enrollment"},
+        {s:3,d:"Excessive burden — significantly impacts consent"}
+      ]},
+      {id:"5.5", name:"Retention Challenges", opts:[
+        {s:0,d:"Low dropout risk / short study duration"},
+        {s:1,d:"Moderate retention challenge"},
+        {s:2,d:"Retention challenges anticipated"},
+        {s:3,d:"High dropout risk — likely to compromise data"}
+      ]},
+      {id:"5.6", name:"Recruitment Strategy Feasibility", opts:[
+        {s:0,d:"Proven strategy / high confidence"},
+        {s:1,d:"Standard approach / moderate confidence"},
+        {s:2,d:"Novel or uncertain strategy"},
+        {s:3,d:"Unclear / likely ineffective strategy"}
+      ]}
+    ]
+  }
+];
+
+const TOTAL_MAX_WT = 124.5;
+
+// Decision matrix rows
+const MATRIX = [
+  {oMin:0,  oMax:40,  d5Min:0,  d5Max:6,  dec:"GO",                   color:"#15803d", bg:"#dcfce7", desc:"Standard activation — proceed with normal planning"},
+  {oMin:0,  oMax:40,  d5Min:7,  d5Max:12, dec:"GO with Monitoring",   color:"#0e7490", bg:"#cffafe", desc:"Proceed with enhanced recruitment planning"},
+  {oMin:0,  oMax:40,  d5Min:13, d5Max:18, dec:"CONDITIONAL GO",       color:"#b45309", bg:"#fef9c3", desc:"Robust recruitment mitigation plan required"},
+  {oMin:41, oMax:65,  d5Min:0,  d5Max:6,  dec:"GO with Planning",     color:"#0e7490", bg:"#cffafe", desc:"Resource allocation and risk mitigation plan required"},
+  {oMin:41, oMax:65,  d5Min:7,  d5Max:12, dec:"CONDITIONAL GO",       color:"#b45309", bg:"#fef9c3", desc:"Adequate resources and strategy must be confirmed"},
+  {oMin:41, oMax:65,  d5Min:13, d5Max:18, dec:"NO-GO",                color:"#dc2626", bg:"#fee2e2", desc:"Decline unless exceptional strategic value exists"},
+  {oMin:66, oMax:100, d5Min:0,  d5Max:6,  dec:"CONDITIONAL GO",       color:"#b45309", bg:"#fef9c3", desc:"Exceptional justification and comprehensive plan required"},
+  {oMin:66, oMax:100, d5Min:7,  d5Max:12, dec:"NO-GO",                color:"#dc2626", bg:"#fee2e2", desc:"Decline unless transformational strategic opportunity"},
+  {oMin:66, oMax:100, d5Min:13, d5Max:18, dec:"NO-GO",                color:"#dc2626", bg:"#fee2e2", desc:"Decline — risk of failure is too high"}
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const scores = {};
+const accordionOpen = {1:true, 2:true, 3:true, 4:true, 5:true};
+let radarChart = null;
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function rawScore(dim) {
+  return dim.items.reduce((s, it) => s + (scores[it.id] ?? 0), 0);
+}
+function totalScored() {
+  return Object.keys(scores).length;
+}
+function overallScore() {
+  const wt = DIMS.reduce((s, d) => s + rawScore(d) * d.weight, 0);
+  return Math.round((wt / TOTAL_MAX_WT) * 100);
+}
+function scoreColor(pct) {
+  if (pct < 0.4) return '#16a34a';
+  if (pct < 0.7) return '#f59e0b';
+  return '#dc2626';
+}
+function btnColorClass(s) { return ['sel-0','sel-1','sel-2','sel-3'][s]; }
+
+// ─── RENDER DIMENSIONS ────────────────────────────────────────────────────────
+function renderDims() {
+  const panel = document.getElementById('dims-panel');
+  panel.innerHTML = '';
+  DIMS.forEach(dim => {
+    const div = document.createElement('div');
+    div.className = 'bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden';
+    div.id = `dim-card-${dim.id}`;
+    div.innerHTML = `
+      <button onclick="toggleAcc(${dim.id})" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-slate-50 transition" aria-expanded="${accordionOpen[dim.id]}">
+        <div class="flex items-center gap-3">
+          <div class="dim-pill text-white" style="background:${dim.color}">${dim.id}</div>
+          <div>
+            <div class="font-semibold text-slate-800 text-sm">${dim.name}</div>
+            <div class="text-xs text-slate-400">Weight&nbsp;${dim.weight}×&nbsp;·&nbsp;Max&nbsp;${dim.maxRaw}&nbsp;pts&nbsp;·&nbsp;Red&nbsp;flag&nbsp;>&nbsp;${dim.rfThresh}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="text-right">
+            <div id="dim${dim.id}-raw" class="text-lg font-bold text-slate-300">0</div>
+            <div class="text-xs text-slate-400">/ ${dim.maxRaw}</div>
+          </div>
+          <svg id="chev-${dim.id}" class="chevron w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </button>
+      <div id="acc-${dim.id}" class="accordion-body ${accordionOpen[dim.id] ? 'open' : 'shut'} border-t border-slate-100" style="background:${dim.bg}">
+        <div class="p-4 space-y-5">
+          ${dim.items.map(it => renderItem(it, dim.color)).join('')}
+        </div>
+      </div>
+    `;
+    panel.appendChild(div);
+  });
+}
+
+function renderItem(item, accentColor) {
+  const sid = item.id.replace('.', '_');
+  return `
+    <div class="item-row" id="item-${sid}">
+      <div class="flex items-baseline gap-2 mb-2">
+        <span class="text-xs font-black text-slate-400 w-7 shrink-0">${item.id}</span>
+        <span class="text-sm font-semibold text-slate-700">${item.name}</span>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-1.5 ml-9">
+        ${item.opts.map(opt => `
+          <button
+            id="btn-${sid}-${opt.s}"
+            onclick="setScore('${item.id}', ${opt.s})"
+            class="score-btn rounded-lg p-2 text-left text-xs leading-snug"
+            aria-label="Score ${opt.s}: ${opt.d}"
+          >
+            <span class="font-bold block mb-0.5 text-slate-400 score-label-num">Score&nbsp;${opt.s}</span>
+            <span class="block leading-tight text-slate-500 score-label-text">${opt.d}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ─── ACCORDION ────────────────────────────────────────────────────────────────
+function toggleAcc(id) {
+  accordionOpen[id] = !accordionOpen[id];
+  document.getElementById(`acc-${id}`).className =
+    `accordion-body ${accordionOpen[id] ? 'open' : 'shut'} border-t border-slate-100`;
+  document.getElementById(`chev-${id}`).classList.toggle('rotated', !accordionOpen[id]);
+}
+function expandAll()   { DIMS.forEach(d => { accordionOpen[d.id]=true;  refreshAcc(d.id); }); }
+function collapseAll() { DIMS.forEach(d => { accordionOpen[d.id]=false; refreshAcc(d.id); }); }
+function refreshAcc(id) {
+  document.getElementById(`acc-${id}`).className =
+    `accordion-body ${accordionOpen[id] ? 'open' : 'shut'} border-t border-slate-100`;
+  const c = document.getElementById(`chev-${id}`);
+  if (c) c.classList.toggle('rotated', !accordionOpen[id]);
+}
+
+// ─── SET SCORE ────────────────────────────────────────────────────────────────
+function setScore(itemId, score) {
+  const sid = itemId.replace('.', '_');
+  const prev = scores[itemId];
+
+  // If clicking the same score, deselect
+  if (prev === score) {
+    delete scores[itemId];
+    [0,1,2,3].forEach(s => {
+      const b = document.getElementById(`btn-${sid}-${s}`);
+      if (b) b.classList.remove('sel-0','sel-1','sel-2','sel-3');
+    });
+  } else {
+    scores[itemId] = score;
+    [0,1,2,3].forEach(s => {
+      const b = document.getElementById(`btn-${sid}-${s}`);
+      if (!b) return;
+      b.classList.remove('sel-0','sel-1','sel-2','sel-3');
+      if (s === score) b.classList.add(btnColorClass(s));
+    });
+  }
+  updateAll();
+}
+
+// ─── UPDATE ALL UI ────────────────────────────────────────────────────────────
+function updateAll() {
+  const ov = overallScore();
+  const scored = totalScored();
+  const dim5raw = rawScore(DIMS[4]);
+
+  // Progress pill
+  document.getElementById('progress-pill').textContent = `${scored} / 34 scored`;
+
+  // Dim raw scores + color
+  DIMS.forEach(dim => {
+    const raw = rawScore(dim);
+    const el = document.getElementById(`dim${dim.id}-raw`);
+    if (el) {
+      el.textContent = raw;
+      el.style.color = scoreColor(raw / dim.maxRaw);
+    }
+  });
+
+  // Gauge
+  const arc = document.getElementById('gauge-fill');
+  const numEl = document.getElementById('gauge-num');
+  const lblEl = document.getElementById('gauge-lbl');
+  const totalArc = 251.3;
+  arc.setAttribute('stroke-dashoffset', totalArc * (1 - ov / 100));
+  let gaugeColor, levelLabel;
+  if (ov <= 40)      { gaugeColor='#16a34a'; levelLabel='Low Complexity';    }
+  else if (ov <= 65) { gaugeColor='#f59e0b'; levelLabel='Medium Complexity'; }
+  else               { gaugeColor='#dc2626'; levelLabel='High Complexity';   }
+  arc.setAttribute('stroke', gaugeColor);
+  numEl.textContent = scored > 0 ? ov : '—';
+  numEl.setAttribute('fill', scored > 0 ? gaugeColor : '#94a3b8');
+  lblEl.textContent = scored > 0 ? levelLabel : 'Complete assessment';
+
+  // Dim bars
+  const barsEl = document.getElementById('dim-bars');
+  barsEl.innerHTML = DIMS.map(dim => {
+    const raw = rawScore(dim);
+    const pct = Math.round((raw / dim.maxRaw) * 100);
+    const col = scoreColor(raw / dim.maxRaw);
+    const isFlag = raw > dim.rfThresh;
+    return `
+      <div class="flex items-center gap-2 text-xs">
+        <span class="font-bold text-slate-500 w-4 text-right">${dim.id}</span>
+        <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+          <div class="h-2 rounded-full transition-all duration-300" style="width:${pct}%;background:${col}"></div>
+        </div>
+        <span class="w-11 text-right font-semibold" style="color:${col}">${raw}/${dim.maxRaw}</span>
+        ${isFlag ? `<span title="Red flag triggered" class="text-red-500 font-black leading-none flag-badge">⚑</span>` : `<span class="w-3"></span>`}
+      </div>
+    `;
+  }).join('');
+
+  // Radar
+  updateRadar();
+
+  // Decision
+  const match = MATRIX.find(r =>
+    ov >= r.oMin && ov <= r.oMax && dim5raw >= r.d5Min && dim5raw <= r.d5Max
+  );
+  const badge = document.getElementById('decision-badge');
+  const rat   = document.getElementById('decision-rationale');
+  const bd    = document.getElementById('score-breakdown');
+  if (match && scored > 0) {
+    badge.style.background = match.bg;
+    badge.style.color = match.color;
+    badge.style.borderLeft = `4px solid ${match.color}`;
+    badge.innerHTML = `<div class="text-lg font-black tracking-wide">${match.dec}</div>`;
+    rat.textContent = match.desc;
+    bd.classList.remove('hidden');
+    document.getElementById('bd-overall').textContent = `${ov}/100`;
+    document.getElementById('bd-overall').style.color = gaugeColor;
+    document.getElementById('bd-dim5').textContent = `${dim5raw}/18`;
+    document.getElementById('bd-scored').textContent = `${scored}/34`;
+  } else {
+    badge.style.background = '#f1f5f9';
+    badge.style.color = '#94a3b8';
+    badge.style.borderLeft = '';
+    badge.innerHTML = `<div class="text-sm font-medium">Complete the assessment to see recommendation</div>`;
+    rat.textContent = '';
+    bd.classList.add('hidden');
+  }
+
+  // Highlight active matrix cell
+  highlightMatrixCell(ov, dim5raw, scored);
+
+  // Flags
+  const flags = DIMS.filter(d => rawScore(d) > d.rfThresh);
+  const flagsEl = document.getElementById('flags-list');
+  if (flags.length === 0) {
+    flagsEl.innerHTML = `<span class="text-green-600 font-medium">✓ No dimension flags triggered</span>`;
+  } else {
+    flagsEl.innerHTML = flags.map(d => `
+      <div class="flex items-start gap-2 bg-red-50 border border-red-100 rounded-lg p-2 text-red-700">
+        <span class="font-black mt-0.5">⚑</span>
+        <div>
+          <div class="font-semibold text-xs">Dim ${d.id}: ${d.name}</div>
+          <div class="text-red-400 text-xs">Raw ${rawScore(d)} exceeds threshold ${d.rfThresh}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// ─── RADAR CHART ──────────────────────────────────────────────────────────────
+function updateRadar() {
+  const data = DIMS.map(d => Math.round((rawScore(d) / d.maxRaw) * 100));
+  if (radarChart) {
+    radarChart.data.datasets[0].data = data;
+    radarChart.update('none');
+    return;
+  }
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: ['Protocol\nDesign','Operational\nExecution','Regulatory\nOversight','Resource\nCapacity','Patient\nRecruitment'],
+      datasets:[{
+        label:'Complexity %',
+        data,
+        backgroundColor:'rgba(59,130,246,0.12)',
+        borderColor:'#3b82f6',
+        pointBackgroundColor: DIMS.map(d => d.color),
+        pointBorderColor:'#fff',
+        pointRadius:5,
+        pointHoverRadius:7,
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      scales:{r:{
+        min:0, max:100,
+        ticks:{stepSize:25, font:{size:8}, display:false},
+        pointLabels:{font:{size:9}, color:'#475569'},
+        grid:{color:'#e2e8f0'},
+        angleLines:{color:'#e2e8f0'}
+      }},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          callbacks:{
+            label: ctx => ` ${ctx.raw}% of max`
+          }
+        }
+      }
+    }
+  });
+}
+
+// ─── DECISION MATRIX TABLE ────────────────────────────────────────────────────
+function renderMatrix() {
+  const rows = [
+    {label:'0–40 (Low)',  cells:MATRIX.slice(0,3)},
+    {label:'41–65 (Med)', cells:MATRIX.slice(3,6)},
+    {label:'66–100 (High)',cells:MATRIX.slice(6,9)}
+  ];
+  document.getElementById('matrix-tbody').innerHTML = rows.map((row,ri) => `
+    <tr>
+      <td class="border border-slate-200 p-1.5 text-slate-600 font-medium text-xs whitespace-nowrap">${row.label}</td>
+      ${row.cells.map((cell,ci) => `
+        <td id="mx-${ri}-${ci}" class="border border-slate-200 p-1.5 text-center font-semibold text-xs transition-all"
+          style="background:${cell.bg};color:${cell.color}">
+          ${cell.dec}
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+}
+
+function highlightMatrixCell(ov, dim5raw, scored) {
+  // Remove all highlights
+  for (let r=0;r<3;r++) for (let c=0;c<3;c++) {
+    const el = document.getElementById(`mx-${r}-${c}`);
+    if (el) el.style.outline = 'none';
+  }
+  if (scored === 0) return;
+  // Band index
+  const ri = ov <= 40 ? 0 : ov <= 65 ? 1 : 2;
+  const ci = dim5raw <= 6 ? 0 : dim5raw <= 12 ? 1 : 2;
+  const el = document.getElementById(`mx-${ri}-${ci}`);
+  if (el) el.style.outline = '2.5px solid #1e40af';
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Reset all scores? This cannot be undone.')) return;
+  Object.keys(scores).forEach(k => delete scores[k]);
+  renderDims();
+  updateAll();
+}
+
+// ─── EXPORT JSON ─────────────────────────────────────────────────────────────
+function exportJSON() {
+  const ov = overallScore();
+  const dim5raw = rawScore(DIMS[4]);
+  const match = MATRIX.find(r =>
+    ov>=r.oMin&&ov<=r.oMax&&dim5raw>=r.d5Min&&dim5raw<=r.d5Max
+  );
+  const payload = {
+    meta: {
+      tool: "Clinical Trial Complexity Assessment",
+      version: "1.0",
+      exportedAt: new Date().toISOString()
+    },
+    trialInfo: {
+      protocol:      document.getElementById('info-protocol').value,
+      sponsor:       document.getElementById('info-sponsor').value,
+      therapeuticArea: document.getElementById('info-ta').value,
+      assessor:      document.getElementById('info-assessor').value,
+      date:          document.getElementById('info-date').value,
+      notes:         document.getElementById('info-notes').value
+    },
+    overallScore: ov,
+    recommendation: match ? match.dec : null,
+    itemsScored: totalScored(),
+    dimensions: DIMS.map(dim => ({
+      id: dim.id,
+      name: dim.name,
+      weight: dim.weight,
+      rawScore: rawScore(dim),
+      maxRaw: dim.maxRaw,
+      weightedScore: Math.round(rawScore(dim) * dim.weight * 10) / 10,
+      redFlag: rawScore(dim) > dim.rfThresh,
+      items: dim.items.map(it => ({
+        id: it.id, name: it.name,
+        score: scores[it.id] ?? null,
+        descriptor: scores[it.id] != null ? it.opts[scores[it.id]].d : null
+      }))
+    }))
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const proto = document.getElementById('info-protocol').value || 'assessment';
+  a.download = `ct-complexity-${proto}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+
+// ─── PROTOCOL UPLOAD ──────────────────────────────────────────────────────────
+
+let uploadedFile = null;
+let pendingScores = {};
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['pdf','docx','doc'].includes(ext)) {
+    alert('Please upload a PDF, DOCX, or DOC file.');
+    return;
+  }
+  if (file.size > 52428800) {
+    alert('File is too large. Please upload a file under 50 MB.');
+    return;
+  }
+  uploadedFile = file;
+  document.getElementById('upload-zone').classList.add('has-file');
+  document.getElementById('upload-idle').classList.add('hidden');
+  document.getElementById('upload-ready').classList.remove('hidden');
+  document.getElementById('upload-filename').textContent = file.name;
+  const sizeMB = (file.size / 1048576).toFixed(2);
+  document.getElementById('upload-filesize').textContent = sizeMB + ' MB · ' + ext.toUpperCase();
+  document.getElementById('analyze-btn').disabled = false;
+  document.getElementById('clear-upload-btn').classList.remove('hidden');
+}
+
+function clearUpload() {
+  uploadedFile = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('upload-idle').classList.remove('hidden');
+  document.getElementById('upload-ready').classList.add('hidden');
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('clear-upload-btn').classList.add('hidden');
+}
+
+async function extractPDF(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const pdfjsLib = window.pdfjsLib;
+        if (!pdfjsLib) throw new Error('PDF.js library not loaded. Please refresh the page.');
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        const typedArray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        let text = '';
+        const totalPages = Math.min(pdf.numPages, 150); // cap at 150 pages
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(it => it.str).join(' ') + '\n';
+        }
+        resolve(text);
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function extractDOCX(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (!window.mammoth) { reject(new Error('Mammoth library not loaded. Please refresh.')); return; }
+      mammoth.extractRawText({ arrayBuffer: e.target.result })
+        .then(result => resolve(result.value))
+        .catch(reject);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function buildPrompt(protocolText) {
+  const MAX_CHARS = 80000;
+  let text = protocolText.trim();
+  const truncated = text.length > MAX_CHARS;
+  if (truncated) text = text.slice(0, MAX_CHARS);
+
+  const itemList = [];
+  DIMS.forEach(dim => {
+    dim.items.forEach(item => {
+      itemList.push({
+        id: item.id,
+        criterion: item.name,
+        dimension: dim.name,
+        scale: item.opts.map((o, i) => i + ': ' + o.d).join(' | ')
+      });
+    });
+  });
+
+  const truncNote = truncated
+    ? '\n[Protocol text truncated to 80,000 characters due to context limits — focus on the content provided.]'
+    : '';
+
+  return `You are an expert clinical trial feasibility analyst. Read the protocol text below and score each of the 34 complexity criteria on a 0–3 scale.
+
+SCORING CRITERIA (34 items):
+${JSON.stringify(itemList, null, 2)}
+
+Return ONLY a valid JSON object with exactly this structure:
+{
+  "scores": {
+    "<item_id>": { "score": <integer 0-3>, "rationale": "<1-2 sentence evidence-based explanation>" }
+  }
+}
+
+Rules:
+- Include all 34 item IDs exactly as listed above
+- Base every score strictly on content found in the protocol
+- If evidence is absent for an item, default to 0 and note it in the rationale
+- Do not add any text outside the JSON object${truncNote}
+
+PROTOCOL TEXT:
+${text}`;
+}
+
+async function callOpenAI(prompt, apiKey) {
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      temperature: 0.1,
+      response_format: { type: 'json_object' },
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    let errMsg = 'OpenAI API error ' + resp.status;
+    try { const e = await resp.json(); errMsg = e.error?.message || errMsg; } catch(_){}
+    throw new Error(errMsg);
+  }
+  const data = await resp.json();
+  return JSON.parse(data.choices[0].message.content);
+}
+
+async function analyzeProtocol() {
+  const apiKey = sessionStorage.getItem('openai_api_key');
+  if (!apiKey) { openApiKeyModal(); return; }
+  if (!uploadedFile) return;
+
+  showAnalysisModal('Extracting text from document…', 15);
+  try {
+    let text = '';
+    const ext = uploadedFile.name.split('.').pop().toLowerCase();
+    if (ext === 'pdf') {
+      text = await extractPDF(uploadedFile);
+    } else {
+      text = await extractDOCX(uploadedFile);
+    }
+
+    if (!text || text.trim().length < 50) {
+      hideAnalysisModal();
+      alert('Could not extract readable text. For PDFs, ensure the file contains selectable text (not a scanned image).');
+      return;
+    }
+
+    updateAnalysisModal('Sending to AI for analysis… (30–90 seconds)', 45);
+    const prompt = buildPrompt(text);
+    const result = await callOpenAI(prompt, apiKey);
+
+    updateAnalysisModal('Processing AI response…', 90);
+    if (!result || !result.scores) throw new Error('Unexpected response format from AI.');
+    pendingScores = result.scores;
+    hideAnalysisModal();
+    showReviewModal();
+
+  } catch(err) {
+    hideAnalysisModal();
+    console.error('Protocol analysis error:', err);
+    const msg = err.message || '';
+    if (msg.includes('401') || msg.toLowerCase().includes('incorrect api key') || msg.toLowerCase().includes('invalid api key')) {
+      sessionStorage.removeItem('openai_api_key');
+      alert('Invalid API key. Please re-enter your OpenAI API key.');
+      openApiKeyModal();
+    } else {
+      alert('Analysis failed: ' + msg + '\n\nCheck your API key and internet connection.');
+    }
+  }
+}
+
+// ─── REVIEW MODAL ─────────────────────────────────────────────────────────────
+function showReviewModal() {
+  const container = document.getElementById('review-items-container');
+  container.innerHTML = '';
+  const COLOR = ['#16a34a','#84cc16','#f59e0b','#dc2626'];
+
+  DIMS.forEach(dim => {
+    const hdr = document.createElement('div');
+    hdr.className = 'mt-4 mb-1 first:mt-0';
+    hdr.innerHTML = `<h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">${dim.id} · ${dim.name}</h4>`;
+    container.appendChild(hdr);
+
+    dim.items.forEach(item => {
+      const ps = pendingScores[item.id] || {};
+      const suggested = (ps.score != null && ps.score !== '') ? Number(ps.score) : null;
+      const rationale = ps.rationale || 'No specific evidence found in the protocol.';
+
+      const row = document.createElement('div');
+      row.className = 'ai-score-row';
+
+      const opts = item.opts.map((o, i) =>
+        `<option value="${i}" ${suggested === i ? 'selected' : ''} style="color:${COLOR[i]}">${i} · ${o.d}</option>`
+      ).join('');
+
+      row.innerHTML = `
+        <div>
+          <div class="text-xs font-semibold text-slate-700">${item.id} · ${item.name}</div>
+          <div class="text-xs text-slate-400 mt-0.5 leading-relaxed italic">${rationale}</div>
+        </div>
+        <select id="ps-${item.id}"
+          class="border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 font-semibold w-full">
+          <option value="" ${suggested === null ? 'selected' : ''}>— select —</option>
+          ${opts}
+        </select>
+        <div class="text-center">
+          ${suggested !== null
+            ? `<span class="inline-block bg-blue-100 text-blue-700 font-bold text-xs px-2 py-1 rounded-lg">${suggested}</span>`
+            : `<span class="text-slate-300 text-xs">—</span>`}
+        </div>
+      `;
+      container.appendChild(row);
+    });
+  });
+
+  document.getElementById('review-modal').classList.remove('hidden');
+}
+
+function closeReviewModal() {
+  document.getElementById('review-modal').classList.add('hidden');
+}
+
+function applyAIScores() {
+  let applied = 0;
+  DIMS.forEach(dim => {
+    dim.items.forEach(item => {
+      const sel = document.getElementById('ps-' + item.id);
+      if (sel && sel.value !== '') {
+        scores[item.id] = Number(sel.value);
+        applied++;
+      }
+    });
+  });
+  closeReviewModal();
+  renderDims();
+  updateAll();
+  showToast('✓ Applied ' + applied + ' AI-suggested scores. Review each item and adjust as needed.');
+}
+
+// ─── API KEY MODAL ────────────────────────────────────────────────────────────
+function openApiKeyModal() {
+  document.getElementById('api-key-input').value = sessionStorage.getItem('openai_api_key') || '';
+  document.getElementById('api-key-error').textContent = '';
+  document.getElementById('api-key-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('api-key-input').focus(), 80);
+}
+
+function closeApiKeyModal() {
+  document.getElementById('api-key-modal').classList.add('hidden');
+}
+
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key.startsWith('sk-')) {
+    document.getElementById('api-key-error').textContent = 'Key must start with "sk-". Find yours at platform.openai.com/api-keys';
+    return;
+  }
+  sessionStorage.setItem('openai_api_key', key);
+  closeApiKeyModal();
+  if (uploadedFile) analyzeProtocol();
+}
+
+// ─── ANALYSIS PROGRESS MODAL ──────────────────────────────────────────────────
+function showAnalysisModal(msg, pct) {
+  document.getElementById('analysis-message').textContent = msg;
+  document.getElementById('analysis-progress-bar').style.width = pct + '%';
+  document.getElementById('analysis-modal').classList.remove('hidden');
+}
+
+function updateAnalysisModal(msg, pct) {
+  document.getElementById('analysis-message').textContent = msg;
+  document.getElementById('analysis-progress-bar').style.width = pct + '%';
+}
+
+function hideAnalysisModal() {
+  document.getElementById('analysis-modal').classList.add('hidden');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-sm px-5 py-2.5 rounded-full shadow-xl z-[2000] no-print';
+  t.style.cssText = 'white-space:nowrap;transition:opacity 0.3s';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 350); }, 3500);
+}
+
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('info-date').value = new Date().toISOString().slice(0,10);
+  renderDims();
+  renderMatrix();
+  updateAll();
+});
+</script>
+
+<!-- ═══ API KEY MODAL ═══════════════════════════════════════════════════════ -->
+<div id="api-key-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+        </svg>
+        <h3 class="text-base font-bold text-slate-800">OpenAI API Key</h3>
+      </div>
+      <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p class="text-sm text-slate-600 mb-4">Enter your OpenAI API key to enable AI-powered protocol analysis. Your key is stored only in your browser session memory and is sent directly to OpenAI — never to any other server.</p>
+      <label class="block text-xs font-semibold text-slate-600 mb-1.5">API Key</label>
+      <input id="api-key-input" type="password" placeholder="sk-..."
+        onkeydown="if(event.key==='Enter')saveApiKey()"
+        class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-400">
+      <p id="api-key-error" class="text-xs text-red-500 mt-1.5 min-h-[1rem]"></p>
+      <p class="text-xs text-slate-400 mt-2">Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank" class="text-blue-500 underline">platform.openai.com/api-keys</a>. Each analysis costs approximately $0.01–0.05 billed to your OpenAI account.</p>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeApiKeyModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">Cancel</button>
+      <button onclick="saveApiKey()" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition">Save & Analyze</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ANALYSIS PROGRESS MODAL ══════════════════════════════════════════════ -->
+<div id="analysis-modal" class="modal-overlay hidden">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-body text-center py-8 px-8">
+      <div class="spinner mx-auto mb-5"></div>
+      <p class="font-semibold text-slate-700 mb-2 text-lg">Analyzing Protocol…</p>
+      <p id="analysis-message" class="text-sm text-slate-500 mb-5">Extracting text from document…</p>
+      <div class="w-full bg-slate-100 rounded-full h-2.5">
+        <div id="analysis-progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-700" style="width:0%"></div>
+      </div>
+      <p class="text-xs text-slate-400 mt-3">Please wait — do not close this tab</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REVIEW SCORES MODAL ═══════════════════════════════════════════════════ -->
+<div id="review-modal" class="modal-overlay hidden">
+  <div class="modal-box modal-lg">
+    <div class="modal-header">
+      <div>
+        <h3 class="text-base font-bold text-slate-800">Review AI-Suggested Scores</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Adjust any score before applying. Verify all scores against your expert judgment.</p>
+      </div>
+      <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 ml-4 flex-shrink-0 p-1 rounded-lg hover:bg-slate-50 transition">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+        <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+        <span class="text-xs text-amber-700 font-medium">AI scores are suggestions only — always verify against your institutional expertise and knowledge of the trial site.</span>
+      </div>
+      <!-- Column headers -->
+      <div class="grid text-xs font-bold text-slate-500 uppercase tracking-wider border-b-2 border-slate-200 pb-2 mb-1" style="grid-template-columns:1fr 160px 90px; gap:0.75rem">
+        <div>Item &amp; AI Rationale</div><div>Score (editable)</div><div>AI Score</div>
+      </div>
+      <div id="review-items-container"></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeReviewModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 rounded-lg border border-slate-200 transition">Discard</button>
+      <button onclick="applyAIScores()" class="px-5 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Apply All Scores to Assessment
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clinical Trial Complexity — Quick Reference Card</title>
+<style>
+  @page {
+    size: A3 landscape;
+    margin: 8mm 8mm 8mm 8mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 6.2pt;
+    color: #111;
+    background: #fff;
+  }
+
+  /* ── Header ── */
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px 3px;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 3px 3px 0 0;
+    margin-bottom: 3px;
+  }
+  .card-header h1 { font-size: 9pt; font-weight: 700; letter-spacing: 0.01em; }
+  .card-header p  { font-size: 6pt; color: #94a3b8; margin-top: 1px; }
+  .card-header .score-info { text-align: right; font-size: 5.8pt; color: #cbd5e1; line-height: 1.5; }
+
+  /* ── Main table ── */
+  .main-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .main-table col.c-id   { width: 3%;  }
+  .main-table col.c-name { width: 12%; }
+  .main-table col.c-opt  { width: 21.25%; }
+
+  /* Dim header row */
+  .dim-header td {
+    padding: 2.5px 5px;
+    color: #fff;
+    font-size: 6.8pt;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .dim-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    font-size: 6.5pt;
+    font-weight: 800;
+    margin-right: 4px;
+  }
+  .dim-meta {
+    font-size: 5.5pt;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-left: 8px;
+  }
+
+  /* Item rows */
+  .item-row td { padding: 1.2px 3px; vertical-align: top; border-bottom: 0.3px solid #e2e8f0; }
+  .item-row:last-of-type td { border-bottom: 1.5px solid #cbd5e1; }
+  .item-id   { font-size: 5.5pt; color: #64748b; font-weight: 600; white-space: nowrap; }
+  .item-name { font-size: 6pt; font-weight: 600; color: #1e293b; line-height: 1.3; }
+  .opt { font-size: 5.8pt; color: #374151; line-height: 1.3; vertical-align: top; }
+  .opt.s0 { background: #f8fafc; }
+  .opt.s1 { background: #f0fdf4; }
+  .opt.s2 { background: #fffbeb; }
+  .opt.s3 { background: #fff1f2; }
+
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 9px; height: 9px;
+    border-radius: 2px;
+    font-size: 5.2pt;
+    font-weight: 800;
+    margin-right: 1px;
+    flex-shrink: 0;
+  }
+  .s0b { background:#e2e8f0; color:#475569; }
+  .s1b { background:#bbf7d0; color:#14532d; }
+  .s2b { background:#fde68a; color:#78350f; }
+  .s3b { background:#fecdd3; color:#9f1239; }
+
+  /* ── Footer row ── */
+  .footer-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 3px;
+  }
+
+  /* Decision matrix */
+  .decision-wrap {
+    flex: 1.1;
+    border: 0.5px solid #cbd5e1;
+    border-radius: 3px;
+    padding: 3px 4px;
+  }
+  .decision-wrap h2 { font-size: 6.5pt; font-weight: 700; margin-bottom: 2px; color: #0f172a; }
+  .decision-table { width: 100%; border-collapse: collapse; font-size: 5.8pt; }
+  .decision-table th { background: #1e293b; color: #fff; padding: 2px 3px; text-align: center; font-weight: 600; }
+  .decision-table td { padding: 2px 3px; text-align: center; border: 0.3px solid #e2e8f0; font-weight: 500; }
+  .decision-table td:first-child { text-align: left; font-weight: 600; color: #374151; }
+  .go   { background:#dcfce7; color:#14532d; font-weight:700; }
+  .cgo  { background:#fef9c3; color:#713f12; font-weight:700; }
+  .nogo { background:#fee2e2; color:#7f1d1d; font-weight:700; }
+
+  /* Override criteria */
+  .override-wrap {
+    flex: 1;
+    border: 0.5px solid #fca5a5;
+    border-radius: 3px;
+    background: #fff7f7;
+    padding: 3px 4px;
+  }
+  .override-wrap h2 { font-size: 6.5pt; font-weight: 700; margin-bottom: 2px; color: #7f1d1d; }
+  .override-wrap ul { padding-left: 8px; }
+  .override-wrap li { font-size: 5.8pt; color: #374151; margin-bottom: 1px; line-height: 1.3; }
+
+  /* Scoring formula */
+  .formula-wrap {
+    flex: 0.9;
+    border: 0.5px solid #bfdbfe;
+    border-radius: 3px;
+    background: #f0f9ff;
+    padding: 3px 4px;
+  }
+  .formula-wrap h2 { font-size: 6.5pt; font-weight: 700; margin-bottom: 2px; color: #1e3a8a; }
+  .formula-wrap p  { font-size: 5.8pt; color: #374151; margin-bottom: 2px; line-height: 1.4; }
+  .formula-wrap table { width:100%; border-collapse:collapse; font-size:5.6pt; margin-top:2px; }
+  .formula-wrap td, .formula-wrap th {
+    padding: 1.5px 3px; border: 0.3px solid #bfdbfe;
+    text-align: center;
+  }
+  .formula-wrap th { background:#1e40af; color:#fff; font-weight:600; }
+
+  /* Legend */
+  .legend-wrap {
+    flex: 0.7;
+    border: 0.5px solid #d1fae5;
+    border-radius: 3px;
+    background: #f0fdf4;
+    padding: 3px 4px;
+  }
+  .legend-wrap h2 { font-size: 6.5pt; font-weight: 700; margin-bottom: 2px; color: #065f46; }
+  .legend-wrap table { width:100%; border-collapse:collapse; font-size:5.6pt; }
+  .legend-wrap td { padding: 1.5px 3px; border: 0.3px solid #a7f3d0; }
+  .legend-wrap tr:nth-child(even) td { background:#ecfdf5; }
+  .score-low  { color:#14532d; font-weight:700; }
+  .score-med  { color:#713f12; font-weight:700; }
+  .score-high { color:#7f1d1d; font-weight:700; }
+
+  .col-headers { display: none; }
+</style>
+</head>
+<body>
+
+<div class="card-header">
+  <div>
+    <h1>Clinical Trial Complexity Assessment — Quick Reference Card</h1>
+    <p>OPAL / EFACCT Framework &nbsp;·&nbsp; 5 Dimensions &nbsp;·&nbsp; 34 Criteria &nbsp;·&nbsp; Weighted Scoring</p>
+  </div>
+  <div class="score-info">
+    Score each item 0–3 &nbsp;|&nbsp; Total = Σ (raw × weight) ÷ 1.245 &nbsp;|&nbsp; Range 0–100<br>
+    <strong style="color:#86efac">GO</strong> = 0–40 &nbsp;·&nbsp;
+    <strong style="color:#fde68a">CONDITIONAL GO</strong> = 41–65 &nbsp;·&nbsp;
+    <strong style="color:#fca5a5">NO-GO</strong> = 66–100
+  </div>
+</div>
+
+<table class="main-table">
+  <col class="c-id"><col class="c-name">
+  <col class="c-opt"><col class="c-opt"><col class="c-opt"><col class="c-opt">
+  <thead>
+    <tr style="background:#334155; color:#fff; font-size:5.8pt;">
+      <th style="padding:1.5px 3px">#</th>
+      <th style="padding:1.5px 3px; text-align:left">Criterion</th>
+      <th style="padding:1.5px 6px; text-align:left; background:#475569">Score 0 — Low / None</th>
+      <th style="padding:1.5px 6px; text-align:left; background:#4d7c0f">Score 1 — Low-Moderate</th>
+      <th style="padding:1.5px 6px; text-align:left; background:#b45309">Score 2 — Moderate-High</th>
+      <th style="padding:1.5px 6px; text-align:left; background:#b91c1c">Score 3 — High / Critical</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr class="dim-header" style="background:#1e40af">
+      <td colspan="7" class="dim-title">
+        <span class="dim-num">1</span>
+        Protocol Design & Study Complexity
+        <span class="dim-meta">Weight 1.2× &nbsp;|&nbsp; 7 items &nbsp;|&nbsp; Max raw 21 &nbsp;|&nbsp; Red flag &gt;15</span>
+      </td>
+    </tr>
+        <tr class="item-row">
+          <td class="item-id">1.1</td>
+          <td class="item-name">Trial Phase</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Phase IV / Observational</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Phase III</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Phase II</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Phase I / First-in-Human</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.2</td>
+          <td class="item-name">Study Design Complexity</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Simple parallel / observational</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Crossover / factorial</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Adaptive randomization / dose-finding</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex adaptive with multiple decision points</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.3</td>
+          <td class="item-name">Number of Treatment Arms</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Single / observational</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Two arms</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Three arms</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Four or more arms</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.4</td>
+          <td class="item-name">Eligibility Criteria Complexity</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Broad (≤10 criteria)</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate (11–20 criteria)</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Restrictive (21–30 criteria)</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Highly restrictive (>30 or specialized testing required)</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.5</td>
+          <td class="item-name">Biomarker Requirements</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> None required</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard routine laboratory</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Specialized send-out testing</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Multiple specialized / novel assays</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.6</td>
+          <td class="item-name">Primary Endpoint Complexity</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Simple clinical or survival endpoint</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Patient-reported outcome (PRO) / QoL</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Composite or imaging endpoint</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Novel endpoint / central adjudication required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">1.7</td>
+          <td class="item-name">Protocol Amendment History</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Stable — no amendments anticipated</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> 1–2 minor amendments</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> 3–4 moderate amendments</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> >4 amendments or major design changes</td>
+        </tr>
+    <tr class="dim-header" style="background:#7c3aed">
+      <td colspan="7" class="dim-title">
+        <span class="dim-num">2</span>
+        Operational Execution & Site Burden
+        <span class="dim-meta">Weight 1.5× &nbsp;|&nbsp; 8 items &nbsp;|&nbsp; Max raw 24 &nbsp;|&nbsp; Red flag &gt;17</span>
+      </td>
+    </tr>
+        <tr class="item-row">
+          <td class="item-id">2.1</td>
+          <td class="item-name">Number of Study Visits</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> ≤5 visits</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> 6–10 visits</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> 11–20 visits</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> >20 visits</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.2</td>
+          <td class="item-name">Visit Duration</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> <1 hour — routine visit</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> 1–2 hours — standard procedures</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> 2–4 hours — multiple procedures</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> >4 hours — complex / inpatient</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.3</td>
+          <td class="item-name">Assessment Procedures</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Routine vitals and labs</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard imaging or functional tests</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Specialized procedures (PK, imaging)</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Multiple specialized / invasive procedures</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.4</td>
+          <td class="item-name">Data Collection Burden</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Simple eCRF — minimal fields</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard eCRF — moderate fields</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Complex eCRF — extensive data points</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Multiple systems / real-time / PRO support required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.5</td>
+          <td class="item-name">Monitoring Intensity</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Remote or annual on-site monitoring</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Every 6–12 months on-site</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Every 2–6 months on-site</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Monthly or 100% SDV (source data verification)</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.6</td>
+          <td class="item-name">Investigational Product Handling</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Oral drug — simple dispensing</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Refrigerated storage or reconstitution required</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> IV infusion or complex preparation</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Specialized storage / dedicated resources required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.7</td>
+          <td class="item-name">Third-Party Coordination</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> None required</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Single vendor or CRO</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Multiple vendors</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex vendor network / decentralized components</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">2.8</td>
+          <td class="item-name">Safety Reporting Requirements</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard adverse event (AE) reporting</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Enhanced AE monitoring</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Real-time SAE / frequent reporting</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex: DSMB / frequent safety labs / specialized reporting</td>
+        </tr>
+    <tr class="dim-header" style="background:#065f46">
+      <td colspan="7" class="dim-title">
+        <span class="dim-num">3</span>
+        Regulatory & Oversight Requirements
+        <span class="dim-meta">Weight 1.0× &nbsp;|&nbsp; 6 items &nbsp;|&nbsp; Max raw 18 &nbsp;|&nbsp; Red flag &gt;13</span>
+      </td>
+    </tr>
+        <tr class="item-row">
+          <td class="item-id">3.1</td>
+          <td class="item-name">IRB / Ethics Review</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard review process</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Expedited review — minor modifications</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Full board review — vulnerable populations or sensitive</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Multi-site or complex consent considerations</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">3.2</td>
+          <td class="item-name">Regulatory Submissions</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> None required</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Single submission (e.g., IND amendment)</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Multiple or specialized submissions</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex regulatory pathway or novel designation</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">3.3</td>
+          <td class="item-name">Informed Consent Complexity</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard single-signature consent</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Lengthy consent / additional educational materials</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Multi-stage consent or legally authorized representative (LAR)</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex — multiple optional sub-studies or ongoing consent</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">3.4</td>
+          <td class="item-name">Data Privacy Requirements</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard HIPAA compliance</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Enhanced security protocols</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> International data transfers or specialized requirements</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Highly sensitive — exceptional security measures required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">3.5</td>
+          <td class="item-name">Oversight Committees</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> None required</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Sponsor safety monitoring only</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Independent DSMB or adjudication committee</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Multiple committees / complex governance structure</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">3.6</td>
+          <td class="item-name">Audit / Inspection Risk</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Low risk — standard monitoring</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate risk — possible audit</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> High risk — likely audit</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Very high risk — anticipated regulatory inspection</td>
+        </tr>
+    <tr class="dim-header" style="background:#92400e">
+      <td colspan="7" class="dim-title">
+        <span class="dim-num">4</span>
+        Resource & Workforce Capacity
+        <span class="dim-meta">Weight 1.3× &nbsp;|&nbsp; 7 items &nbsp;|&nbsp; Max raw 21 &nbsp;|&nbsp; Red flag &gt;15</span>
+      </td>
+    </tr>
+        <tr class="item-row">
+          <td class="item-id">4.1</td>
+          <td class="item-name">Coordinator Time Required</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> <0.25 FTE</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> 0.25–0.5 FTE</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> 0.5–1.0 FTE</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> >1.0 FTE or multiple coordinators needed</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.2</td>
+          <td class="item-name">Specialized Expertise Needed</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard site capabilities sufficient</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Brief staff training required</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Specialized experienced staff needed</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Highly specialized skills or certification required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.3</td>
+          <td class="item-name">Space & Equipment Requirements</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Standard exam room</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Dedicated research space / standard equipment</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Specialized equipment or procedure space required</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Significant infrastructure investment required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.4</td>
+          <td class="item-name">Pharmacy Resources</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> None or minimal pharmacy involvement</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard pharmacy services</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Moderate — compounding or specialized storage</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Intensive / specialized pharmacy capabilities required</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.5</td>
+          <td class="item-name">Laboratory Resources</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Routine commercial laboratory</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard sample processing and storage</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Specialized laboratory (e.g., −80°C freezer required)</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Complex protocols / significant storage investment</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.6</td>
+          <td class="item-name">Budget Adequacy</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Budget clearly exceeds projected costs</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Budget adequate with reasonable contingency</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Marginally adequate — limited contingency</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Budget insufficient for safe conduct</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">4.7</td>
+          <td class="item-name">Current Site Workload</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Significant available capacity</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate available capacity</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Limited capacity — near maximum</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> At or over current capacity</td>
+        </tr>
+    <tr class="dim-header" style="background:#991b1b">
+      <td colspan="7" class="dim-title">
+        <span class="dim-num">5</span>
+        Patient Population & Recruitment
+        <span class="dim-meta">Weight 1.0× &nbsp;|&nbsp; 6 items &nbsp;|&nbsp; Max raw 18 &nbsp;|&nbsp; Red flag &gt;13</span>
+      </td>
+    </tr>
+        <tr class="item-row">
+          <td class="item-id">5.1</td>
+          <td class="item-name">Target Population Accessibility</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Large, readily accessible population</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate — accessible with standard outreach</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Small — requires active recruitment effort</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Very limited / rare disease population</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">5.2</td>
+          <td class="item-name">Enrollment Timeline</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Relaxed timeline / low enrollment rate</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate timeline and rate</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Aggressive timeline / high enrollment rate</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Very aggressive — likely unachievable</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">5.3</td>
+          <td class="item-name">Competing Studies</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> No competing studies</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Minimal competition — distinct populations</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Moderate competition for same population</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Direct competition / trial competes with standard of care</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">5.4</td>
+          <td class="item-name">Patient Burden</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Minimal burden — convenient participation</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate burden — manageable</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Substantial burden — may deter enrollment</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Excessive burden — significantly impacts consent</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">5.5</td>
+          <td class="item-name">Retention Challenges</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Low dropout risk / short study duration</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Moderate retention challenge</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Retention challenges anticipated</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> High dropout risk — likely to compromise data</td>
+        </tr>
+        <tr class="item-row">
+          <td class="item-id">5.6</td>
+          <td class="item-name">Recruitment Strategy Feasibility</td>
+          <td class="opt s0"><span class="score-badge s0b">0</span> Proven strategy / high confidence</td>
+          <td class="opt s1"><span class="score-badge s1b">1</span> Standard approach / moderate confidence</td>
+          <td class="opt s2"><span class="score-badge s2b">2</span> Novel or uncertain strategy</td>
+          <td class="opt s3"><span class="score-badge s3b">3</span> Unclear / likely ineffective strategy</td>
+        </tr>
+  </tbody>
+</table>
+
+<div class="footer-row">
+  <div class="formula-wrap">
+    <h2>Scoring Formula</h2>
+    <p>Weighted score = raw score × dimension weight<br>
+    Final score = (Σ weighted) ÷ 1.245 → 0–100 scale</p>
+    <table>
+      <tr><th>Dimension</th><th>Items</th><th>Weight</th><th>Max Wt.</th><th>Red Flag Raw</th></tr>
+      <tr><td>1. Protocol Design</td><td>7</td><td>1.2×</td><td>25.2</td><td>&gt;15</td></tr>
+      <tr><td>2. Operational Execution</td><td>8</td><td>1.5×</td><td>36.0</td><td>&gt;17</td></tr>
+      <tr><td>3. Regulatory & Oversight</td><td>6</td><td>1.0×</td><td>18.0</td><td>&gt;13</td></tr>
+      <tr><td>4. Resource & Workforce</td><td>7</td><td>1.3×</td><td>27.3</td><td>&gt;15</td></tr>
+      <tr><td>5. Patient & Recruitment</td><td>6</td><td>1.0×</td><td>18.0</td><td>&gt;13</td></tr>
+    </table>
+  </div>
+
+  <div class="decision-wrap">
+    <h2>Decision Matrix</h2>
+    
+<table class="decision-table">
+<thead>
+<tr>
+  <th>Overall Score</th>
+  <th>Dim 5 Raw ≤6</th>
+  <th>Dim 5 Raw 7–12</th>
+  <th>Dim 5 Raw 13–18</th>
+</tr>
+</thead>
+<tbody>
+<tr class="go-row"><td>0–40 (Low)</td><td class="go">GO</td><td class="go">GO</td><td class="cgo">CONDITIONAL GO</td></tr>
+<tr class="cgo-row"><td>41–65 (Medium)</td><td class="go">GO</td><td class="cgo">CONDITIONAL GO</td><td class="nogo">NO-GO</td></tr>
+<tr class="nogo-row"><td>66–100 (High)</td><td class="cgo">CONDITIONAL GO</td><td class="nogo">NO-GO</td><td class="nogo">NO-GO</td></tr>
+</tbody>
+</table>
+  </div>
+
+  <div class="override-wrap">
+    <h2>Automatic NO-GO Override Criteria</h2>
+    <ul>
+      <li>Any single dimension weighted score ≥ 90% of its maximum</li>
+      <li>Three or more dimensions with raw score at red-flag threshold</li>
+      <li>Item 2.1 (Visits) = 3 AND Item 2.3 (Procedures) = 3 simultaneously</li>
+      <li>Item 4.6 (Budget Adequacy) = 3 (budget clearly insufficient)</li>
+      <li>Item 4.7 (Workload) = 3 (site at or over capacity)</li>
+      <li>Item 5.1 (Population Access) = 3 AND Item 5.2 (Timeline) = 3</li>
+    </ul>
+  </div>
+
+  <div class="legend-wrap">
+    <h2>Score Thresholds</h2>
+    <table>
+      <tr><th>Band</th><th>Score</th><th>Decision</th></tr>
+      <tr><td><span class="score-low">LOW</span></td><td>0–40</td><td>GO — proceed</td></tr>
+      <tr><td><span class="score-med">MEDIUM</span></td><td>41–65</td><td>CONDITIONAL GO</td></tr>
+      <tr><td><span class="score-high">HIGH</span></td><td>66–100</td><td>NO-GO — decline</td></tr>
+    </table>
+    <p style="font-size:5.4pt; color:#64748b; margin-top:3px;">
+      Red flag = any single dimension exceeds its raw threshold listed above.
+      Check overrides before final decision. Use the app at
+      <strong>localhost:8080</strong> for automated calculation.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

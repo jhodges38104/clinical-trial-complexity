@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clinical Trial Complexity — Laminated Reference Card</title>
+<style>
+/* ══ PAGE SETUP ══════════════════════════════════════════════ */
+@page front  { size: letter portrait; margin: 9mm 8mm 8mm 8mm; }
+@page back   { size: letter portrait; margin: 9mm 8mm 8mm 8mm; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #111; background:#fff; }
+
+/* ══ LAMINATE WRAPPER ═══════════════════════════════════════ */
+.card {
+  border: 2px solid #1e3a8a;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* ══ PAGE BREAKS ════════════════════════════════════════════ */
+.page { page-break-after: always; }
+.page-back { page-break-after: auto; }
+
+/* ══ CARD HEADER ════════════════════════════════════════════ */
+.card-head {
+  background: #0f172a;
+  color: #fff;
+  padding: 5px 8px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #1e3a8a;
+}
+.card-head h1   { font-size: 9.5pt; font-weight: 800; letter-spacing:.01em; }
+.card-head p    { font-size: 6pt; color: #94a3b8; margin-top: 1px; }
+.side-badge {
+  font-size: 7pt; font-weight: 700; letter-spacing:.05em;
+  background: #1e3a8a; color: #fff;
+  padding: 2px 8px; border-radius: 10px;
+  border: 1px solid #3b82f6;
+  white-space: nowrap;
+}
+
+/* ══ LEGEND BAR ═════════════════════════════════════════════ */
+.legend-bar {
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  font-size: 5.8pt;
+  color: #cbd5e1;
+  border-bottom: 1px solid #334155;
+}
+.leg-item { display:flex; align-items:center; gap:3px; }
+.leg-dot  { width:7px; height:7px; border-radius:2px; }
+.leg-sep  { color:#475569; }
+
+/* ══ MAIN TABLE (FRONT) ══════════════════════════════════════ */
+.main-table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:6pt; }
+.main-table col.c0 { width:3.2%; }
+.main-table col.c1 { width:13.5%; }
+.main-table col.c2 { width:20.8%; }
+.main-table col.c3 { width:20.8%; }
+.main-table col.c4 { width:20.8%; }
+.main-table col.c5 { width:20.9%; }
+
+.col-hdr th {
+  padding: 2px 4px;
+  font-size: 6pt; font-weight:700;
+  border-bottom: 1px solid #475569;
+  text-align: left;
+}
+
+.dim-circle {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:13px; height:13px; border-radius:50%;
+  font-size:6.5pt; font-weight:800;
+  margin-right:4px;
+  opacity:.9;
+}
+
+.iid   { font-size:5.5pt; color:#64748b; font-weight:600; padding:1.5px 3px; white-space:nowrap; vertical-align:top; }
+.iname { font-size:6pt; font-weight:700; color:#1e293b; padding:1.5px 3px; vertical-align:top; line-height:1.25; }
+.opt   { font-size:5.7pt; color:#1e293b; padding:1.5px 3px; vertical-align:top; line-height:1.25; border-left:1px solid rgba(0,0,0,.06); }
+
+.sb {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:9px; height:9px; border-radius:2px;
+  font-size:5pt; font-weight:800; margin-right:2px;
+  flex-shrink:0; vertical-align:middle;
+}
+.s0b { background:#e2e8f0; color:#475569; }
+.s1b { background:#bbf7d0; color:#14532d; }
+.s2b { background:#fde68a; color:#78350f; }
+.s3b { background:#fecdd3; color:#9f1239; }
+
+/* ══ BACK PAGE ═══════════════════════════════════════════════ */
+.back-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 6px;
+  padding: 6px;
+  height: calc(100% - 52px);
+}
+
+.panel {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.panel-head {
+  padding: 4px 8px;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #fff;
+}
+.panel-body { padding: 5px 7px; font-size: 6pt; }
+
+/* Decision matrix */
+.dm-panel { grid-column: 1; grid-row: 1; border: 1.5px solid #1d4ed8; }
+.dm-panel .panel-head { background: #1e3a8a; }
+.dm-table { width:100%; border-collapse:collapse; font-size: 6.2pt; }
+.dm-table th {
+  background: #334155; color:#fff; padding:3px 5px;
+  text-align:center; font-weight:600; font-size:6pt;
+}
+.dm-table td { padding:4px 5px; border:.4px solid #cbd5e1; text-align:center; font-weight:600; }
+.dm-band { text-align:left !important; font-weight:700; color:#1e293b; font-size:6.2pt; }
+.dm-lbl { font-size:5.3pt; font-weight:400; color:#64748b; }
+.go  { background:#dcfce7; color:#14532d; }
+.cgo { background:#fef9c3; color:#713f12; }
+.ngo { background:#fee2e2; color:#7f1d1d; }
+
+/* Formula / weights */
+.wt-panel { grid-column: 2; grid-row: 1; border: 1.5px solid #047857; }
+.wt-panel .panel-head { background: #065f46; }
+.wt-table { width:100%; border-collapse:collapse; font-size:6pt; }
+.wt-table th { background:#064e3b; color:#fff; padding:2.5px 4px; font-weight:600; }
+.wt-table td { padding:2.5px 4px; border:.4px solid #a7f3d0; }
+.wt-table td.c { text-align:center; }
+.dim-dot {
+  display:inline-block; width:7px; height:7px; border-radius:50%;
+  vertical-align:middle; margin-right:3px;
+}
+.formula-box {
+  background:#f0fdf4; border:.5px solid #a7f3d0; border-radius:3px;
+  padding:3px 5px; margin-top:4px; font-size:5.8pt; line-height:1.5;
+  color:#1e293b;
+}
+.formula-box strong { color:#065f46; }
+
+/* Override criteria */
+.ov-panel { grid-column: 1; grid-row: 2; border: 1.5px solid #ef4444; }
+.ov-panel .panel-head { background: #7f1d1d; }
+.ov-panel ul { padding-left:12px; }
+.ov-panel li { font-size:5.8pt; color:#1e293b; margin-bottom:2.5px; line-height:1.3; }
+.ov-panel li::marker { color:#ef4444; }
+
+/* How-to steps */
+.steps-panel { grid-column: 2; grid-row: 2; border: 1.5px solid #b45309; }
+.steps-panel .panel-head { background: #78350f; }
+.step {
+  display:flex; align-items:flex-start; gap:5px;
+  margin-bottom:3px; font-size:5.8pt; color:#1e293b; line-height:1.3;
+}
+.step-n {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:11px; height:11px; border-radius:50%;
+  background:#78350f; color:#fff; font-size:5pt; font-weight:800;
+  flex-shrink:0; margin-top:.5px;
+}
+
+/* Score thresholds */
+.thresh-panel { grid-column: 1 / span 2; grid-row: 3; border: 1.5px solid #334155; }
+.thresh-panel .panel-head { background: #1e293b; }
+.thresh-grid {
+  display:grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 5px;
+}
+.thresh-band {
+  border-radius:3px; padding:4px 6px; text-align:center;
+}
+.thresh-band .tb-score { font-size:9pt; font-weight:800; }
+.thresh-band .tb-label { font-size:6.2pt; font-weight:700; margin:1px 0; }
+.thresh-band .tb-desc  { font-size:5.6pt; color:#374151; line-height:1.3; }
+
+/* Footer stripe */
+.card-foot {
+  background:#0f172a; color:#64748b;
+  font-size:5.3pt; padding:2px 8px;
+  display:flex; justify-content:space-between;
+  border-top:1px solid #1e293b;
+}
+
+/* Print polish */
+@media print {
+  html, body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRONT — All 34 Criteria
+     ══════════════════════════════════════════════════════════ -->
+<div class="page">
+<div class="card" style="display:flex;flex-direction:column;height:100%;">
+
+  <div class="card-head">
+    <div>
+      <h1>Clinical Trial Complexity Assessment</h1>
+      <p>OPAL / EFACCT Framework &nbsp;·&nbsp; 5 Weighted Dimensions &nbsp;·&nbsp; 34 Criteria &nbsp;·&nbsp; Score 0–3 per item</p>
+    </div>
+    <span class="side-badge">FRONT — SCORING CRITERIA</span>
+  </div>
+
+  <div class="legend-bar">
+    <div class="leg-item"><div class="leg-dot" style="background:#e2e8f0;border:1px solid #94a3b8"></div> Score 0 — Low / None</div>
+    <span class="leg-sep">|</span>
+    <div class="leg-item"><div class="leg-dot" style="background:#bbf7d0"></div> Score 1 — Low–Moderate</div>
+    <span class="leg-sep">|</span>
+    <div class="leg-item"><div class="leg-dot" style="background:#fde68a"></div> Score 2 — Moderate–High</div>
+    <span class="leg-sep">|</span>
+    <div class="leg-item"><div class="leg-dot" style="background:#fecdd3"></div> Score 3 — High / Critical</div>
+    <span class="leg-sep" style="margin-left:auto">See back for decision matrix &amp; formula →</span>
+  </div>
+
+  <table class="main-table" style="flex:1;">
+    <col class="c0"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5">
+    <thead>
+      <tr class="col-hdr" style="background:#334155;color:#fff;">
+        <th style="padding:2px 3px">#</th>
+        <th style="padding:2px 4px;text-align:left">Criterion</th>
+        <th style="padding:2px 4px;background:#475569;border-left:1px solid #64748b">Score 0 — Low / None</th>
+        <th style="padding:2px 4px;background:#166534;border-left:1px solid #64748b">Score 1 — Low–Moderate</th>
+        <th style="padding:2px 4px;background:#92400e;border-left:1px solid #64748b">Score 2 — Moderate–High</th>
+        <th style="padding:2px 4px;background:#9f1239;border-left:1px solid #64748b">Score 3 — High / Critical</th>
+      </tr>
+    </thead>
+    <tbody>
+    <tr class="dim-hdr">
+      <td colspan="6" style="background:#1d4ed8;color:#fff;padding:3.5px 6px;font-size:7pt;font-weight:700;letter-spacing:.03em;">
+        <span class="dim-circle" style="background:#1e3a8a">1</span>
+        PROTOCOL DESIGN & STUDY COMPLEXITY
+        <span style="font-weight:400;opacity:.8;font-size:5.8pt;margin-left:8px;">
+          7 items &nbsp;·&nbsp; Weight 1.2× &nbsp;·&nbsp; Max raw 21 &nbsp;·&nbsp; Red flag &gt;15
+        </span>
+      </td>
+    </tr>
+    <tr style="background:#f0f6ff">
+      <td class="iid">1.1</td>
+      <td class="iname">Trial Phase</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Phase IV / Observational</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Phase III</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Phase II</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Phase I / First-in-Human</td>
+    </tr>
+    <tr style="background:#e0edff">
+      <td class="iid">1.2</td>
+      <td class="iname">Study Design Complexity</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Simple parallel / observational</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Crossover / factorial</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Adaptive randomization / dose-finding</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex adaptive with multiple decision points</td>
+    </tr>
+    <tr style="background:#f0f6ff">
+      <td class="iid">1.3</td>
+      <td class="iname">Number of Treatment Arms</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Single / observational</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Two arms</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Three arms</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Four or more arms</td>
+    </tr>
+    <tr style="background:#e0edff">
+      <td class="iid">1.4</td>
+      <td class="iname">Eligibility Criteria Complexity</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Broad (≤10 criteria)</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate (11–20 criteria)</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Restrictive (21–30 criteria)</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Highly restrictive (>30 or specialized testing required)</td>
+    </tr>
+    <tr style="background:#f0f6ff">
+      <td class="iid">1.5</td>
+      <td class="iname">Biomarker Requirements</td>
+      <td class="opt s0"><span class="sb s0b">0</span>None required</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard routine laboratory</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Specialized send-out testing</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Multiple specialized / novel assays</td>
+    </tr>
+    <tr style="background:#e0edff">
+      <td class="iid">1.6</td>
+      <td class="iname">Primary Endpoint Complexity</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Simple clinical or survival endpoint</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Patient-reported outcome (PRO) / QoL</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Composite or imaging endpoint</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Novel endpoint / central adjudication required</td>
+    </tr>
+    <tr style="background:#f0f6ff">
+      <td class="iid">1.7</td>
+      <td class="iname">Protocol Amendment History</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Stable — no amendments anticipated</td>
+      <td class="opt s1"><span class="sb s1b">1</span>1–2 minor amendments</td>
+      <td class="opt s2"><span class="sb s2b">2</span>3–4 moderate amendments</td>
+      <td class="opt s3"><span class="sb s3b">3</span>>4 amendments or major design changes</td>
+    </tr>
+    <tr class="dim-hdr">
+      <td colspan="6" style="background:#6d28d9;color:#fff;padding:3.5px 6px;font-size:7pt;font-weight:700;letter-spacing:.03em;">
+        <span class="dim-circle" style="background:#4c1d95">2</span>
+        OPERATIONAL EXECUTION & SITE BURDEN
+        <span style="font-weight:400;opacity:.8;font-size:5.8pt;margin-left:8px;">
+          8 items &nbsp;·&nbsp; Weight 1.5× &nbsp;·&nbsp; Max raw 24 &nbsp;·&nbsp; Red flag &gt;17
+        </span>
+      </td>
+    </tr>
+    <tr style="background:#f5f0ff">
+      <td class="iid">2.1</td>
+      <td class="iname">Number of Study Visits</td>
+      <td class="opt s0"><span class="sb s0b">0</span>≤5 visits</td>
+      <td class="opt s1"><span class="sb s1b">1</span>6–10 visits</td>
+      <td class="opt s2"><span class="sb s2b">2</span>11–20 visits</td>
+      <td class="opt s3"><span class="sb s3b">3</span>>20 visits</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td class="iid">2.2</td>
+      <td class="iname">Visit Duration</td>
+      <td class="opt s0"><span class="sb s0b">0</span><1 hour — routine visit</td>
+      <td class="opt s1"><span class="sb s1b">1</span>1–2 hours — standard procedures</td>
+      <td class="opt s2"><span class="sb s2b">2</span>2–4 hours — multiple procedures</td>
+      <td class="opt s3"><span class="sb s3b">3</span>>4 hours — complex / inpatient</td>
+    </tr>
+    <tr style="background:#f5f0ff">
+      <td class="iid">2.3</td>
+      <td class="iname">Assessment Procedures</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Routine vitals and labs</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard imaging or functional tests</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Specialized procedures (PK, imaging)</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Multiple specialized / invasive procedures</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td class="iid">2.4</td>
+      <td class="iname">Data Collection Burden</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Simple eCRF — minimal fields</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard eCRF — moderate fields</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Complex eCRF — extensive data points</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Multiple systems / real-time / PRO support required</td>
+    </tr>
+    <tr style="background:#f5f0ff">
+      <td class="iid">2.5</td>
+      <td class="iname">Monitoring Intensity</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Remote or annual on-site monitoring</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Every 6–12 months on-site</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Every 2–6 months on-site</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Monthly or 100% SDV (source data verification)</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td class="iid">2.6</td>
+      <td class="iname">Investigational Product Handling</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Oral drug — simple dispensing</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Refrigerated storage or reconstitution required</td>
+      <td class="opt s2"><span class="sb s2b">2</span>IV infusion or complex preparation</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Specialized storage / dedicated resources required</td>
+    </tr>
+    <tr style="background:#f5f0ff">
+      <td class="iid">2.7</td>
+      <td class="iname">Third-Party Coordination</td>
+      <td class="opt s0"><span class="sb s0b">0</span>None required</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Single vendor or CRO</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Multiple vendors</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex vendor network / decentralized components</td>
+    </tr>
+    <tr style="background:#ede9fe">
+      <td class="iid">2.8</td>
+      <td class="iname">Safety Reporting Requirements</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard adverse event (AE) reporting</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Enhanced AE monitoring</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Real-time SAE / frequent reporting</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex: DSMB / frequent safety labs / specialized reporting</td>
+    </tr>
+    <tr class="dim-hdr">
+      <td colspan="6" style="background:#047857;color:#fff;padding:3.5px 6px;font-size:7pt;font-weight:700;letter-spacing:.03em;">
+        <span class="dim-circle" style="background:#064e3b">3</span>
+        REGULATORY & OVERSIGHT REQUIREMENTS
+        <span style="font-weight:400;opacity:.8;font-size:5.8pt;margin-left:8px;">
+          6 items &nbsp;·&nbsp; Weight 1.0× &nbsp;·&nbsp; Max raw 18 &nbsp;·&nbsp; Red flag &gt;13
+        </span>
+      </td>
+    </tr>
+    <tr style="background:#f0fdf6">
+      <td class="iid">3.1</td>
+      <td class="iname">IRB / Ethics Review</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard review process</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Expedited review — minor modifications</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Full board review — vulnerable populations or sensitive</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Multi-site or complex consent considerations</td>
+    </tr>
+    <tr style="background:#dcfce7">
+      <td class="iid">3.2</td>
+      <td class="iname">Regulatory Submissions</td>
+      <td class="opt s0"><span class="sb s0b">0</span>None required</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Single submission (e.g., IND amendment)</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Multiple or specialized submissions</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex regulatory pathway or novel designation</td>
+    </tr>
+    <tr style="background:#f0fdf6">
+      <td class="iid">3.3</td>
+      <td class="iname">Informed Consent Complexity</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard single-signature consent</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Lengthy consent / additional educational materials</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Multi-stage consent or legally authorized representative (LAR)</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex — multiple optional sub-studies or ongoing consent</td>
+    </tr>
+    <tr style="background:#dcfce7">
+      <td class="iid">3.4</td>
+      <td class="iname">Data Privacy Requirements</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard HIPAA compliance</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Enhanced security protocols</td>
+      <td class="opt s2"><span class="sb s2b">2</span>International data transfers or specialized requirements</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Highly sensitive — exceptional security measures required</td>
+    </tr>
+    <tr style="background:#f0fdf6">
+      <td class="iid">3.5</td>
+      <td class="iname">Oversight Committees</td>
+      <td class="opt s0"><span class="sb s0b">0</span>None required</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Sponsor safety monitoring only</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Independent DSMB or adjudication committee</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Multiple committees / complex governance structure</td>
+    </tr>
+    <tr style="background:#dcfce7">
+      <td class="iid">3.6</td>
+      <td class="iname">Audit / Inspection Risk</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Low risk — standard monitoring</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate risk — possible audit</td>
+      <td class="opt s2"><span class="sb s2b">2</span>High risk — likely audit</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Very high risk — anticipated regulatory inspection</td>
+    </tr>
+    <tr class="dim-hdr">
+      <td colspan="6" style="background:#b45309;color:#fff;padding:3.5px 6px;font-size:7pt;font-weight:700;letter-spacing:.03em;">
+        <span class="dim-circle" style="background:#78350f">4</span>
+        RESOURCE & WORKFORCE CAPACITY
+        <span style="font-weight:400;opacity:.8;font-size:5.8pt;margin-left:8px;">
+          7 items &nbsp;·&nbsp; Weight 1.3× &nbsp;·&nbsp; Max raw 21 &nbsp;·&nbsp; Red flag &gt;15
+        </span>
+      </td>
+    </tr>
+    <tr style="background:#fffbf0">
+      <td class="iid">4.1</td>
+      <td class="iname">Coordinator Time Required</td>
+      <td class="opt s0"><span class="sb s0b">0</span><0.25 FTE</td>
+      <td class="opt s1"><span class="sb s1b">1</span>0.25–0.5 FTE</td>
+      <td class="opt s2"><span class="sb s2b">2</span>0.5–1.0 FTE</td>
+      <td class="opt s3"><span class="sb s3b">3</span>>1.0 FTE or multiple coordinators needed</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td class="iid">4.2</td>
+      <td class="iname">Specialized Expertise Needed</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard site capabilities sufficient</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Brief staff training required</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Specialized experienced staff needed</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Highly specialized skills or certification required</td>
+    </tr>
+    <tr style="background:#fffbf0">
+      <td class="iid">4.3</td>
+      <td class="iname">Space & Equipment Requirements</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Standard exam room</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Dedicated research space / standard equipment</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Specialized equipment or procedure space required</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Significant infrastructure investment required</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td class="iid">4.4</td>
+      <td class="iname">Pharmacy Resources</td>
+      <td class="opt s0"><span class="sb s0b">0</span>None or minimal pharmacy involvement</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard pharmacy services</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Moderate — compounding or specialized storage</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Intensive / specialized pharmacy capabilities required</td>
+    </tr>
+    <tr style="background:#fffbf0">
+      <td class="iid">4.5</td>
+      <td class="iname">Laboratory Resources</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Routine commercial laboratory</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard sample processing and storage</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Specialized laboratory (e.g., −80°C freezer required)</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Complex protocols / significant storage investment</td>
+    </tr>
+    <tr style="background:#fef3c7">
+      <td class="iid">4.6</td>
+      <td class="iname">Budget Adequacy</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Budget clearly exceeds projected costs</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Budget adequate with reasonable contingency</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Marginally adequate — limited contingency</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Budget insufficient for safe conduct</td>
+    </tr>
+    <tr style="background:#fffbf0">
+      <td class="iid">4.7</td>
+      <td class="iname">Current Site Workload</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Significant available capacity</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate available capacity</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Limited capacity — near maximum</td>
+      <td class="opt s3"><span class="sb s3b">3</span>At or over current capacity</td>
+    </tr>
+    <tr class="dim-hdr">
+      <td colspan="6" style="background:#b91c1c;color:#fff;padding:3.5px 6px;font-size:7pt;font-weight:700;letter-spacing:.03em;">
+        <span class="dim-circle" style="background:#7f1d1d">5</span>
+        PATIENT POPULATION & RECRUITMENT
+        <span style="font-weight:400;opacity:.8;font-size:5.8pt;margin-left:8px;">
+          6 items &nbsp;·&nbsp; Weight 1.0× &nbsp;·&nbsp; Max raw 18 &nbsp;·&nbsp; Red flag &gt;13
+        </span>
+      </td>
+    </tr>
+    <tr style="background:#fff5f5">
+      <td class="iid">5.1</td>
+      <td class="iname">Target Population Accessibility</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Large, readily accessible population</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate — accessible with standard outreach</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Small — requires active recruitment effort</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Very limited / rare disease population</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td class="iid">5.2</td>
+      <td class="iname">Enrollment Timeline</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Relaxed timeline / low enrollment rate</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate timeline and rate</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Aggressive timeline / high enrollment rate</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Very aggressive — likely unachievable</td>
+    </tr>
+    <tr style="background:#fff5f5">
+      <td class="iid">5.3</td>
+      <td class="iname">Competing Studies</td>
+      <td class="opt s0"><span class="sb s0b">0</span>No competing studies</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Minimal competition — distinct populations</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Moderate competition for same population</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Direct competition / trial competes with standard of care</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td class="iid">5.4</td>
+      <td class="iname">Patient Burden</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Minimal burden — convenient participation</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate burden — manageable</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Substantial burden — may deter enrollment</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Excessive burden — significantly impacts consent</td>
+    </tr>
+    <tr style="background:#fff5f5">
+      <td class="iid">5.5</td>
+      <td class="iname">Retention Challenges</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Low dropout risk / short study duration</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Moderate retention challenge</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Retention challenges anticipated</td>
+      <td class="opt s3"><span class="sb s3b">3</span>High dropout risk — likely to compromise data</td>
+    </tr>
+    <tr style="background:#fee2e2">
+      <td class="iid">5.6</td>
+      <td class="iname">Recruitment Strategy Feasibility</td>
+      <td class="opt s0"><span class="sb s0b">0</span>Proven strategy / high confidence</td>
+      <td class="opt s1"><span class="sb s1b">1</span>Standard approach / moderate confidence</td>
+      <td class="opt s2"><span class="sb s2b">2</span>Novel or uncertain strategy</td>
+      <td class="opt s3"><span class="sb s3b">3</span>Unclear / likely ineffective strategy</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="card-foot">
+    <span>Clinical Trial Complexity Assessor &nbsp;·&nbsp; localhost:8080</span>
+    <span>FRONT SIDE — print on side 1</span>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     BACK — Decision Matrix, Formula, Overrides
+     ══════════════════════════════════════════════════════════ -->
+<div class="page-back">
+<div class="card" style="display:flex;flex-direction:column;min-height:100%;">
+
+  <div class="card-head">
+    <div>
+      <h1>Clinical Trial Complexity Assessment — Reference &amp; Decision Guide</h1>
+      <p>How to calculate final score · Go / No-Go decision matrix · Automatic override conditions</p>
+    </div>
+    <span class="side-badge">BACK — DECISION GUIDE</span>
+  </div>
+
+  <div class="back-grid">
+
+    <!-- Decision Matrix -->
+    <div class="panel dm-panel">
+      <div class="panel-head">GO / NO-GO DECISION MATRIX</div>
+      <div class="panel-body">
+        <table class="dm-table">
+          <thead>
+            <tr>
+              <th style="text-align:left">Overall Score</th>
+              <th>Dim 5 Raw ≤ 6<br><span style="font-weight:400;font-size:5.3pt">(Low recruitment risk)</span></th>
+              <th>Dim 5 Raw 7–12<br><span style="font-weight:400;font-size:5.3pt">(Moderate risk)</span></th>
+              <th>Dim 5 Raw 13–18<br><span style="font-weight:400;font-size:5.3pt">(High risk)</span></th>
+            </tr>
+          </thead>
+          <tbody>
+        <tr>
+          <td class="dm-band">0–40<br><span class="dm-lbl">Low</span></td>
+          <td class="go">GO</td>
+          <td class="go">GO</td>
+          <td class="cgo">CONDITIONAL GO</td>
+        </tr>
+        <tr>
+          <td class="dm-band">41–65<br><span class="dm-lbl">Medium</span></td>
+          <td class="go">GO</td>
+          <td class="cgo">CONDITIONAL GO</td>
+          <td class="ngo">NO-GO</td>
+        </tr>
+        <tr>
+          <td class="dm-band">66–100<br><span class="dm-lbl">High</span></td>
+          <td class="cgo">CONDITIONAL GO</td>
+          <td class="ngo">NO-GO</td>
+          <td class="ngo">NO-GO</td>
+        </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:5px;font-size:5.6pt;color:#475569;line-height:1.4;">
+          <strong>GO</strong> — Accept with standard oversight &nbsp;·&nbsp;
+          <strong>CONDITIONAL GO</strong> — Accept with mitigation plan and senior sign-off &nbsp;·&nbsp;
+          <strong>NO-GO</strong> — Decline (or escalate to leadership only)
+        </div>
+      </div>
+    </div>
+
+    <!-- Weights & Formula -->
+    <div class="panel wt-panel">
+      <div class="panel-head">DIMENSION WEIGHTS &amp; SCORING FORMULA</div>
+      <div class="panel-body">
+        <table class="wt-table">
+          <thead>
+            <tr>
+              <th style="text-align:left">Dimension</th>
+              <th>Items</th>
+              <th>Weight</th>
+              <th>Max Wt.</th>
+              <th>Red Flag</th>
+            </tr>
+          </thead>
+          <tbody>
+        <tr>
+          <td><span class="dim-dot" style="background:#1d4ed8"></span> 1. Protocol Design & Study Complexity</td>
+          <td class="c">7</td>
+          <td class="c">1.2×</td>
+          <td class="c">25.2</td>
+          <td class="c">&gt;15</td>
+        </tr>
+        <tr>
+          <td><span class="dim-dot" style="background:#6d28d9"></span> 2. Operational Execution & Site Burden</td>
+          <td class="c">8</td>
+          <td class="c">1.5×</td>
+          <td class="c">36.0</td>
+          <td class="c">&gt;17</td>
+        </tr>
+        <tr>
+          <td><span class="dim-dot" style="background:#047857"></span> 3. Regulatory & Oversight Requirements</td>
+          <td class="c">6</td>
+          <td class="c">1.0×</td>
+          <td class="c">18.0</td>
+          <td class="c">&gt;13</td>
+        </tr>
+        <tr>
+          <td><span class="dim-dot" style="background:#b45309"></span> 4. Resource & Workforce Capacity</td>
+          <td class="c">7</td>
+          <td class="c">1.3×</td>
+          <td class="c">27.3</td>
+          <td class="c">&gt;15</td>
+        </tr>
+        <tr>
+          <td><span class="dim-dot" style="background:#b91c1c"></span> 5. Patient Population & Recruitment</td>
+          <td class="c">6</td>
+          <td class="c">1.0×</td>
+          <td class="c">18.0</td>
+          <td class="c">&gt;13</td>
+        </tr>
+            <tr style="background:#d1fae5;font-weight:700;">
+              <td>TOTAL</td>
+              <td class="c">34</td>
+              <td class="c">—</td>
+              <td class="c">124.5</td>
+              <td class="c">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="formula-box">
+          <strong>Step 1</strong> — Raw dim score = Σ item scores (0–3 each)<br>
+          <strong>Step 2</strong> — Weighted score = raw × dimension weight<br>
+          <strong>Step 3</strong> — Total weighted = Σ all 5 weighted scores<br>
+          <strong>Step 4</strong> — Final (0–100) = total weighted ÷ <strong>1.245</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Override Criteria -->
+    <div class="panel ov-panel">
+      <div class="panel-head">⚑ AUTOMATIC NO-GO OVERRIDE CONDITIONS</div>
+      <div class="panel-body">
+        <p style="font-size:5.8pt;color:#7f1d1d;font-weight:600;margin-bottom:4px;">
+          If ANY condition below is met, the decision is NO-GO regardless of the total score:
+        </p>
+        <ul><li>Any single dimension's weighted score ≥ 90% of its maximum possible</li><li>Three or more dimensions with raw scores at or above their red-flag threshold</li><li>Item 2.1 (Study Visits) = 3 AND Item 2.3 (Procedures) = 3 simultaneously</li><li>Item 4.6 (Budget Adequacy) = 3 — budget clearly insufficient for safe conduct</li><li>Item 4.7 (Current Workload) = 3 — site at or over current capacity</li><li>Item 5.1 (Population Access) = 3 AND Item 5.2 (Enrollment Timeline) = 3</li></ul>
+      </div>
+    </div>
+
+    <!-- How-to Steps -->
+    <div class="panel steps-panel">
+      <div class="panel-head">HOW TO COMPLETE AN ASSESSMENT</div>
+      <div class="panel-body"><div class="step"><span class="step-n">1</span><div><strong>Score each item</strong> Rate every criterion 0–3 using the Front side descriptors.</div></div><div class="step"><span class="step-n">2</span><div><strong>Check red flags</strong> Any dimension raw score above its threshold triggers a warning.</div></div><div class="step"><span class="step-n">3</span><div><strong>Apply weights</strong> Each dim score is multiplied by its weight factor (1.0×–1.5×).</div></div><div class="step"><span class="step-n">4</span><div><strong>Normalize</strong> Sum all weighted scores ÷ 1.245 → final score on 0–100 scale.</div></div><div class="step"><span class="step-n">5</span><div><strong>Apply matrix</strong> Cross-reference final score band with Dim 5 raw band at right.</div></div><div class="step"><span class="step-n">6</span><div><strong>Check overrides</strong> Any override condition = automatic NO-GO regardless of score.</div></div></div>
+    </div>
+
+    <!-- Score Thresholds -->
+    <div class="panel thresh-panel">
+      <div class="panel-head">FINAL SCORE INTERPRETATION &amp; THRESHOLDS</div>
+      <div class="panel-body">
+        <div class="thresh-grid">
+          <div class="thresh-band" style="background:#dcfce7;border:1.5px solid #86efac;">
+            <div class="tb-score" style="color:#14532d;">0 – 40</div>
+            <div class="tb-label" style="color:#14532d;">LOW COMPLEXITY — GO</div>
+            <div class="tb-desc">Site has sufficient capacity and experience. Proceed with standard oversight and normal monitoring frequency.</div>
+          </div>
+          <div class="thresh-band" style="background:#fef9c3;border:1.5px solid #fde047;">
+            <div class="tb-score" style="color:#713f12;">41 – 65</div>
+            <div class="tb-label" style="color:#713f12;">MEDIUM COMPLEXITY — CONDITIONAL GO</div>
+            <div class="tb-desc">Proceed only after documenting risk mitigation plans. Enhanced monitoring, dedicated coordinator time, and senior PI sign-off required.</div>
+          </div>
+          <div class="thresh-band" style="background:#fee2e2;border:1.5px solid #fca5a5;">
+            <div class="tb-score" style="color:#7f1d1d;">66 – 100</div>
+            <div class="tb-label" style="color:#7f1d1d;">HIGH COMPLEXITY — NO-GO</div>
+            <div class="tb-desc">Decline participation. If a strategic exception is considered, requires VP/C-suite approval with a full risk mitigation plan.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.back-grid -->
+
+  <div class="card-foot">
+    <span>Clinical Trial Complexity Assessor &nbsp;·&nbsp; localhost:8080</span>
+    <span>BACK SIDE — print on side 2</span>
+  </div>
+
+</div>
+</div>
+
+</body>
+</html>

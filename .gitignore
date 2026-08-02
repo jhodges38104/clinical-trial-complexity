@@ -1,0 +1,5 @@
+.DS_Store
+.claude/
+
+# Word/PDF deliverables — attached to GitHub Releases instead of committed
+release-assets/
