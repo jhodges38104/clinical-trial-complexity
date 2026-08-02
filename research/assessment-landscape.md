@@ -74,6 +74,8 @@ Selecting or implementing a complexity assessment should match the decision cont
 
 If users require further synthesis or a tailored recommendation for a specific site or trial type, insufficient evidence prevents prescribing a single universally superior tool; local piloting and alignment with the decision objective are recommended [5].
 
+**Applied example:** This project's own checklist (`checklist-report.md`) followed exactly this "pilot and adapt locally" pattern for a non-malignant hematology (sickle cell disease, hemophilia, bone marrow failure, bleeding/clotting disorders) CTM caseload — see `hem-ctm-checklist-addendum-draft.md` for the specific items added (event-driven visit burden, long-term follow-up commitment, a supplemental data/specimen-complexity module) and the rationale for keeping some of that customization out of the core weighted score entirely rather than forcing every study design onto one composite number.
+
 ## References
 
 [1]B. Smuck et al., “Ontario Protocol Assessment Level: Clinical Trial Complexity Rating Tool for Workload Planning in Oncology Clinical Trials,” Journal of Oncology Practice, vol. 7, no. 2, pp. 80–84, Mar. 2011, doi: 10.1200/JOP.2010.000051.
