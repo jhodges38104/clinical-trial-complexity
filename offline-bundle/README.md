@@ -2,6 +2,10 @@
 
 A fully offline web application for scoring clinical trial complexity and making go/no-go participation decisions.
 
+> **No internet access needed and prefer not to install anything?** Use the hosted version instead:
+> **https://jhodges38104.github.io/clinical-trial-complexity/** — same app, nothing to download or run.
+> Use this local bundle only if you need it to work with zero internet connectivity.
+
 ---
 
 ## Quick Start
