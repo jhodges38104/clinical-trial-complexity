@@ -5,8 +5,7 @@ go / no-go participation decisions. The scoring framework synthesizes evidence f
 published complexity tools (OPAL, the Protocol Complexity Tool, TRACAT, Pharm-CAT) and
 public feasibility checklists — see [`research/`](research/) for the full writeup.
 
-**Live app:** `https://<your-username>.github.io/<repo-name>/` — update this link once
-GitHub Pages is enabled (Settings → Pages → Deploy from branch → `main` / `root`).
+**Live app:** https://jhodges38104.github.io/clinical-trial-complexity/
 
 ## What's here
 
