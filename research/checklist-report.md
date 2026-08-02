@@ -4,7 +4,7 @@
 
 This report presents a structured complexity assessment checklist designed to support clinical trial sites and organizations in making informed go/no-go decisions when evaluating whether to participate in a clinical trial. The framework synthesizes evidence from validated complexity assessment tools including the Ontario Protocol Assessment Level (OPAL), the Protocol Complexity Tool (PCT), the Trial Rating and Complexity Assessment Tool (TRACAT), and Pharm-CAT, alongside publicly available feasibility checklists.
 
-The checklist organizes complexity assessment across five core dimensions: protocol design and study complexity, operational execution and site burden, regulatory and oversight requirements, resource and workforce capacity, and patient population and recruitment feasibility. Each dimension includes scored assessment items with clear guidance for interpretation. A weighted scoring system enables sites to calculate an overall complexity score, which is then mapped to decision thresholds (low, medium, high complexity) that inform go/no-go recommendations.
+The checklist organizes complexity assessment across five core dimensions: protocol design and study complexity, operational execution and site burden, regulatory and oversight requirements, resource and workforce capacity, and patient population and recruitment feasibility. Each dimension includes scored assessment items with clear guidance for interpretation. A weighted scoring system enables sites to calculate an overall complexity score, which is then mapped to decision thresholds (low, medium, high complexity) that inform go/no-go recommendations. A supplemental sixth dimension (§8a) scores study-design modality and data/specimen complexity — qualitative methods, EMR abstraction, biospecimens, PROs, and longitudinal cohort scale — for non-interventional designs (natural history studies, registries, qualitative research); it is reported as its own number and is not blended into the core 0-100 score.
 
 This evidence-based framework addresses a critical gap in clinical trial planning, as approximately one in four clinical trials fail to complete as planned, primarily due to inadequate feasibility assessment and poor recruitment [1], [3], [5], [13], [18]. By systematically evaluating trial complexity before commitment, sites can better align trial requirements with available capacity, reduce startup delays, optimize resource allocation, and improve trial success rates.
 
@@ -20,6 +20,7 @@ This evidence-based framework addresses a critical gap in clinical trial plannin
 6. [Dimension 3: Regulatory and Oversight Requirements](#6-dimension-3-regulatory-and-oversight-requirements)
 7. [Dimension 4: Resource and Workforce Capacity](#7-dimension-4-resource-and-workforce-capacity)
 8. [Dimension 5: Patient Population and Recruitment](#8-dimension-5-patient-population-and-recruitment)
+   - [8a. Supplemental Dimension 6: Study Design Modality & Data/Specimen Complexity](#8a-supplemental-dimension-6-study-design-modality--dataspecimen-complexity)
 9. [Scoring Guidance and Interpretation](#9-scoring-guidance-and-interpretation)
 10. [Decision Matrix and Go/No-Go Thresholds](#10-decision-matrix-and-gono-go-thresholds)
 11. [Implementation Recommendations](#11-implementation-recommendations)
@@ -157,16 +158,17 @@ Operational execution requirements directly determine site workload, coordinator
 | **2.6 Investigational Product Handling** | Complexity of IP management | 0 = Oral medication, simple dispensing<br>1 = Refrigerated storage or reconstitution required<br>2 = IV administration or complex preparation<br>3 = Specialized storage, handling, or administration requiring dedicated resources | _____ |
 | **2.7 Third-Party Coordination** | External vendors or services required | 0 = None required<br>1 = Single vendor (e.g., central lab)<br>2 = Multiple vendors requiring coordination<br>3 = Complex vendor network or decentralized trial elements | _____ |
 | **2.8 Safety Reporting Requirements** | Adverse event monitoring and reporting burden | 0 = Standard AE reporting<br>1 = Enhanced AE monitoring for specific events<br>2 = Real-time SAE reporting or frequent safety assessments<br>3 = Complex safety monitoring (e.g., DSMB, frequent safety labs, specialized assessments) | _____ |
+| **2.9 Unscheduled/Event-Driven Visit Burden** | Frequency and predictability of non-protocol-scheduled visits or contacts triggered by clinical events (e.g., vaso-occlusive crises, bleeding episodes) | 0 = No unscheduled/event-triggered visits anticipated<br>1 = Occasional unscheduled contact, low expected frequency<br>2 = Regular unscheduled/urgent visits, business-hours capacity sufficient<br>3 = Frequent/unpredictable unscheduled visits requiring 24/7 availability, ER coordination, or after-hours dosing/reporting | _____ |
 
-**Dimension 2 Subtotal:** _____ / 24
+**Dimension 2 Subtotal:** _____ / 27
 
-**Dimension 2 Weighted Score:** Subtotal × 1.5 = _____ / 36
+**Dimension 2 Weighted Score:** Subtotal × 1.5 = _____ / 40.5
 
 ### 5.3 Interpretation Guidance
 
-- **Low complexity (0-8):** Manageable operational requirements within standard site workflows
-- **Medium complexity (9-16):** Moderate operational burden requiring dedicated coordinator time and coordination
-- **High complexity (17-24):** Intensive operational requirements demanding significant site resources and specialized capabilities
+- **Low complexity (0-9):** Manageable operational requirements within standard site workflows
+- **Medium complexity (10-18):** Moderate operational burden requiring dedicated coordinator time and coordination
+- **High complexity (19-27):** Intensive operational requirements demanding significant site resources and specialized capabilities
 
 Operational execution represents the largest component of site burden and is weighted most heavily in the overall complexity score. High scores indicate protocols that will consume substantial coordinator time, require careful scheduling, and may strain site capacity. Sites should carefully assess whether current workload and staffing levels can accommodate the operational demands [3], [10], [11].
 
@@ -220,16 +222,17 @@ Resource and workforce capacity represents a fundamental constraint on trial par
 | **4.5 Laboratory Resources** | Lab processing and storage requirements | 0 = Routine labs sent to commercial lab<br>1 = Standard processing and storage<br>2 = Specialized processing or storage (e.g., -80°C freezer)<br>3 = Complex processing protocols or significant storage requirements | _____ |
 | **4.6 Budget Adequacy** | Alignment of budget with anticipated costs | 0 = Budget exceeds anticipated costs<br>1 = Budget adequate for anticipated costs<br>2 = Budget marginally adequate, limited contingency<br>3 = Budget insufficient for anticipated costs | _____ |
 | **4.7 Current Workload Capacity** | Available capacity given current portfolio | 0 = Significant available capacity<br>1 = Moderate capacity available<br>2 = Limited capacity, near maximum workload<br>3 = At or over capacity, no available bandwidth | _____ |
+| **4.8 Long-Term Follow-Up (LTFU) Commitment** | Duration and intensity of post-treatment follow-up obligations beyond the active trial period (e.g., gene/cell therapy) | 0 = No extended follow-up beyond standard close-out (≤1 year)<br>1 = Extended follow-up 1-5 years post-treatment, low-intensity<br>2 = Extended follow-up 5-10 years, periodic visits or specialized monitoring<br>3 = Extended follow-up >10 years (e.g., 15-year gene therapy LTFU), sustained visits, specialized long-term safety monitoring | _____ |
 
-**Dimension 4 Subtotal:** _____ / 21
+**Dimension 4 Subtotal:** _____ / 24
 
-**Dimension 4 Weighted Score:** Subtotal × 1.3 = _____ / 27.3
+**Dimension 4 Weighted Score:** Subtotal × 1.3 = _____ / 31.2
 
 ### 7.4 Interpretation Guidance
 
-- **Low complexity (0-7):** Adequate resources available within current capacity
-- **Medium complexity (8-14):** Moderate resource requirements requiring careful planning or modest investment
-- **High complexity (15-21):** Substantial resource requirements potentially exceeding current capacity
+- **Low complexity (0-8):** Adequate resources available within current capacity
+- **Medium complexity (9-16):** Moderate resource requirements requiring careful planning or modest investment
+- **High complexity (17-24):** Substantial resource requirements potentially exceeding current capacity
 
 Resource constraints are a primary reason for declining trial opportunities. High scores indicate trials that may require additional hiring, infrastructure investment, or reallocation of existing resources. Sites should carefully assess whether the trial budget adequately compensates for required resources and whether accepting the trial would compromise existing commitments [1], [5], [10], [18], [19].
 
@@ -264,6 +267,40 @@ Patient recruitment is the most common cause of trial failure, with poor recruit
 
 Recruitment feasibility is the single most important predictor of trial success. High scores indicate trials with significant recruitment risk that may fail to meet enrollment targets. Sites should carefully assess whether the eligible patient population, recruitment timeline, and patient burden align with realistic enrollment projections. Competing studies and excessive patient burden are particularly important red flags [3], [15], [16], [18], [19].
 
+> **Note for rare/ultra-rare caseloads:** For sites whose caseload is predominantly rare/ultra-rare conditions, the bands above will systematically skew Medium–High, since a small eligible population (5.1) and competing sponsor trials for it (5.3) are the norm rather than the exception in this space. This should not by itself be read as elevated risk. Per §11.1 Phase 2 (Calibration): after your pilot cohort, compute the site's own historical Dimension 5 score distribution and set Low/Medium/High bands from your own quartiles rather than the generic thresholds above — this keeps Dimension 5 useful for differentiating your typical caseload instead of flattening everything to "high."
+
+---
+
+## 8a. Supplemental Dimension 6: Study Design Modality & Data/Specimen Complexity
+
+**Kept separate from the core 0–100 complexity score and Go/No-Go decision.** A large longitudinal EMR-abstraction cohort study and a Phase II drug trial aren't complex in comparable ways — forcing both onto one composite would either dilute the drug-trial signal or produce a misleadingly low score for a cohort study that has no treatment arms or IP handling but is enormous in scope. Report this dimension as its own parallel readout: *"Core Complexity: XX/100 (GO/CONDITIONAL/NO-GO)"* alongside *"Data & Specimen Complexity: XX/21 (Low/Medium/High)."*
+
+**Applicability note for Item 1.1 (Trial Phase):** its "0 = Phase IV or observational" anchor should not be read as "observational = simple." A non-interventional study will legitimately score low/not-applicable on several Dimension 1–4 items (treatment arms, IP handling) without that indicating true simplicity — this dimension is where that study's actual complexity should surface.
+
+### 8a.1 Rationale
+
+Qualitative research and large longitudinal cohort studies built on retrospective and prospective EMR abstraction, biospecimen collection, and PRO batteries are common in non-malignant hematology (natural history studies, registries, patient-experience research) but don't fit an interventional-trial-shaped checklist. This dimension gives them the same structured, comparable scoring the other five give drug/device trials.
+
+### 8a.2 Assessment Items
+
+| Item | Description | Scoring Guidance | Score (0-3) |
+|------|-------------|------------------|-------------|
+| **6.1 Study Design Modality** | Overall design type and number of concurrent data-collection modes | 0 = Simple observational/registry design, single data source, cross-sectional or short follow-up<br>1 = Observational cohort with a defined follow-up schedule, single data source<br>2 = Multi-source cohort (EMR + prospective visits + specimens), or a qualitative study with a structured protocol<br>3 = Complex multi-modal design combining retrospective EMR abstraction, prospective visits, biospecimen collection, PROs, and/or qualitative components | _____ |
+| **6.2 Qualitative Data Collection Burden** | Interviews, focus groups, or other qualitative methodology | 0 = No qualitative component<br>1 = Limited qualitative component (e.g., brief open-ended survey items), no formal coding<br>2 = Semi-structured interviews/focus groups with a defined guide; transcription and thematic coding; standard qualitative software<br>3 = Extensive qualitative program across multiple stakeholder groups; saturation-based sampling; multi-coder reliability process; specialized staff required | _____ |
+| **6.3 Retrospective EMR/Chart Abstraction Burden** | Volume and method of retrospective data abstraction from existing medical records | 0 = No retrospective chart review required<br>1 = Limited abstraction (<50 charts or a narrow, well-structured field set), primarily electronic/structured pull<br>2 = Moderate abstraction (50-500 charts, or years of longitudinal history/patient), mix of structured pull and manual review<br>3 = Extensive manual abstraction (>500 charts, or deep multi-year/decade history/patient), heavily manual, multiple source systems or outside-record requests | _____ |
+| **6.4 Prospective & Electronic Abstraction Infrastructure** | Ongoing prospective EMR-linked or electronic data-capture requirements | 0 = No prospective EMR/electronic abstraction; data collected solely via study visit forms<br>1 = Periodic manual prospective chart review at defined intervals<br>2 = Structured electronic data feed (e.g., EHR interface, registry linkage, i2b2/OMOP extract) requiring informatics/IT setup<br>3 = Continuous/near-real-time electronic capture requiring dedicated informatics support, cross-system data-use agreements, ongoing quality monitoring | _____ |
+| **6.5 Biospecimen Collection & Biobanking** | Blood/tissue/other specimen collection, processing, and storage requirements | 0 = No specimen collection<br>1 = Standard specimen collection, processed by local/commercial lab, no long-term storage<br>2 = Specialized processing (e.g., PBMC isolation, plasma separation, defined timing windows), short/medium-term storage<br>3 = Complex biobanking: multiple specimen types, specialized preservation (−80°C or LN2), long-term chain-of-custody storage, and/or external sharing | _____ |
+| **6.6 Patient-Reported Outcome (PRO) Burden** | Volume, frequency, and administration complexity of PRO instruments | 0 = No PRO collection<br>1 = Single brief PRO instrument, infrequent administration (2-3 visits)<br>2 = Multiple PRO instruments or frequent administration (every visit), standard ePRO platform<br>3 = Extensive/complex PRO battery, high-frequency or diary-based collection, multiple platforms, or population-specific adaptation (e.g., pediatric proxy, low-literacy) | _____ |
+| **6.7 Longitudinal Duration & Cohort Scale** | Total study duration and cohort size driving sustained site commitment | 0 = ≤2 years total duration, <100 participants<br>1 = 2-5 years, 100-500 participants<br>2 = 5-10 years, 500-2,000 participants, or multi-site coordination required<br>3 = >10 years and/or >2,000 participants, sustained multi-year staffing and long-term data/specimen stewardship required | _____ |
+
+**Dimension 6 Subtotal:** _____ / 21 *(not weighted, not added to the core Total Complexity Score)*
+
+### 8a.3 Interpretation Guidance
+
+- **Low (0-7):** Straightforward data/specimen scope manageable within standard research-coordinator workflows.
+- **Medium (8-14):** Meaningful data-management or specimen-handling burden; likely needs dedicated data-abstraction or informatics support.
+- **High (15-21):** Substantial standing infrastructure required — informatics/data-management staff, biobanking capability, and/or qualitative-methods expertise — comparable in planning weight to a high-complexity interventional trial, even though it may score low on Dimensions 1-4.
+
 ---
 
 ## 9. Scoring Guidance and Interpretation
@@ -274,9 +311,11 @@ The total complexity score is calculated by summing the weighted dimension score
 
 **Total Complexity Score = (Dimension 1 × 1.2) + (Dimension 2 × 1.5) + (Dimension 3 × 1.0) + (Dimension 4 × 1.3) + (Dimension 5 × 1.0)**
 
-**Maximum Possible Score:** 124.5
+*(Dimension 6, if used, is scored and reported separately and is not part of this formula — see §8a.)*
 
-**Normalized Score (0-100 scale):** (Total Complexity Score / 124.5) × 100 = _____
+**Maximum Possible Score:** 132.9 *(25.2 + 40.5 + 18 + 31.2 + 18, reflecting Items 2.9 and 4.8)*
+
+**Normalized Score (0-100 scale):** (Total Complexity Score / 132.9) × 100 = _____
 
 ### 9.2 Dimension Weighting Rationale
 
@@ -310,19 +349,19 @@ In addition to the total complexity score, sites should analyze the dimension pr
 
 **Example 1: Low Complexity Trial**
 - Dimension 1: 5/21 (24%) – Phase III, simple design
-- Dimension 2: 8/24 (33%) – Moderate visit schedule
+- Dimension 2: 8/27 (30%) – Moderate visit schedule, Item 2.9 = 0
 - Dimension 3: 4/18 (22%) – Standard regulatory requirements
-- Dimension 4: 6/21 (29%) – Adequate resources available
+- Dimension 4: 6/24 (25%) – Adequate resources available, Item 4.8 = 0
 - Dimension 5: 5/18 (28%) – Good recruitment feasibility
-- **Total Score: 32/100** – Low complexity, favorable for participation
+- **Total Score: 26/100** – Low complexity, favorable for participation
 
 **Example 2: High Complexity Trial**
 - Dimension 1: 16/21 (76%) – Phase I, adaptive design, biomarkers
-- Dimension 2: 20/24 (83%) – Intensive visits, complex procedures
+- Dimension 2: 20/27 (74%) – Intensive visits, complex procedures
 - Dimension 3: 12/18 (67%) – DSMB, complex consent
-- Dimension 4: 18/21 (86%) – Specialized expertise, limited capacity
+- Dimension 4: 18/24 (75%) – Specialized expertise, limited capacity
 - Dimension 5: 14/18 (78%) – Rare disease, aggressive timeline
-- **Total Score: 78/100** – High complexity, requires exceptional justification
+- **Total Score: 74/100** – High complexity, requires exceptional justification
 
 ---
 
@@ -572,8 +611,9 @@ By adopting this evidence-based complexity assessment framework, sites can impro
 | 2.6 Investigational Product Handling | _____ |
 | 2.7 Third-Party Coordination | _____ |
 | 2.8 Safety Reporting Requirements | _____ |
-| **Dimension 2 Subtotal** | _____ / 24 |
-| **Dimension 2 Weighted Score (× 1.5)** | _____ / 36 |
+| 2.9 Unscheduled/Event-Driven Visit Burden | _____ |
+| **Dimension 2 Subtotal** | _____ / 27 |
+| **Dimension 2 Weighted Score (× 1.5)** | _____ / 40.5 |
 
 ---
 
@@ -603,8 +643,9 @@ By adopting this evidence-based complexity assessment framework, sites can impro
 | 4.5 Laboratory Resources | _____ |
 | 4.6 Budget Adequacy | _____ |
 | 4.7 Current Workload Capacity | _____ |
-| **Dimension 4 Subtotal** | _____ / 21 |
-| **Dimension 4 Weighted Score (× 1.3)** | _____ / 27.3 |
+| 4.8 Long-Term Follow-Up (LTFU) Commitment | _____ |
+| **Dimension 4 Subtotal** | _____ / 24 |
+| **Dimension 4 Weighted Score (× 1.3)** | _____ / 31.2 |
 
 ---
 
@@ -623,12 +664,30 @@ By adopting this evidence-based complexity assessment framework, sites can impro
 
 ---
 
-### Total Complexity Score
+### Total Complexity Score (Dimensions 1–5 only)
 
 | Calculation | Score |
 |-------------|-------|
-| Sum of Weighted Dimension Scores | _____ / 124.5 |
+| Sum of Weighted Dimension Scores | _____ / 132.9 |
 | Normalized Score (0-100 scale) | _____ / 100 |
+
+---
+
+### Supplemental Dimension 6: Study Design Modality & Data/Specimen Complexity
+
+*Not part of the Total Complexity Score above — score and report separately. See §8a.*
+
+| Item | Score (0-3) |
+|------|-------------|
+| 6.1 Study Design Modality | _____ |
+| 6.2 Qualitative Data Collection Burden | _____ |
+| 6.3 Retrospective EMR/Chart Abstraction Burden | _____ |
+| 6.4 Prospective & Electronic Abstraction Infrastructure | _____ |
+| 6.5 Biospecimen Collection & Biobanking | _____ |
+| 6.6 Patient-Reported Outcome (PRO) Burden | _____ |
+| 6.7 Longitudinal Duration & Cohort Scale | _____ |
+| **Dimension 6 Subtotal** | _____ / 21 |
+| **Band** (Low 0-7 / Medium 8-14 / High 15-21) | _____ |
 
 **Complexity Category:** ☐ Low (0-40) ☐ Medium (41-65) ☐ High (66-100)
 
@@ -676,9 +735,9 @@ ________________________________________________________________________________
 | Dimension | Red Flag Threshold | Implication |
 |-----------|-------------------|-------------|
 | Protocol Design | >15/21 (>71%) | Complex protocol requiring specialized expertise |
-| Operational Execution | >17/24 (>71%) | Intensive site burden, high coordinator time |
+| Operational Execution | >19/27 (>70%) | Intensive site burden, high coordinator time |
 | Regulatory | >13/18 (>72%) | Substantial regulatory burden, extended timelines |
-| Resources | >15/21 (>71%) | Resource requirements may exceed capacity |
+| Resources | >17/24 (>71%) | Resource requirements may exceed capacity |
 | Recruitment | >13/18 (>72%) | High risk of enrollment failure |
 
 ### Common Decline Reasons (from literature)

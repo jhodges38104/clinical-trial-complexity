@@ -1,8 +1,16 @@
 # Validation Report: Excel Workbook vs. Web Application Scoring Engine
 
+> ### ⚠ Status: Partially superseded — re-validation required
+>
+> This report validates the **original 34-item / 124.5-max-weighted-score** version of the tool. As of the HEM CTM checklist addendum (`research/hem-ctm-checklist-addendum-draft.md`), the **live web application** (`index.html`, `offline-bundle/index.html`) has been updated with:
+> - **Item 2.9** (Unscheduled/Event-Driven Visit Burden) and **Item 4.8** (Long-Term Follow-Up Commitment) added to the core weighted score — Dimension 2 max raw 24→27, Dimension 4 max raw 21→24, and **`TOTAL_MAX_WT` 124.5 → 132.9**.
+> - A new **supplemental Dimension 6** (Study Design Modality & Data/Specimen Complexity, 7 items) — kept out of the core formula entirely, so it does not affect the concordance findings below.
+>
+> The Excel workbook (`data/complexity-scoring-engine.xlsx`) has **not** been updated to match — Excel and web are currently **out of parity** for Items 2.9 and 4.8. The three scenarios and formulas below remain an accurate historical record of the original 34-item tool, but **do not** cover the new items or the new denominator. Before relying on this tool for production go/no-go decisions with 2.9/4.8 scored, either (a) update the Excel workbook to match and re-run this same three-scenario methodology against the new 132.9 denominator, or (b) treat the web app as authoritative on its own during the testing period and formally re-validate before wider rollout.
+
 ## Executive Summary
 
-This report presents the results of a comprehensive validation exercise comparing the scoring outputs of an Excel-based complexity assessment workbook against its deployed web application counterpart. Three test scenarios spanning low, medium, and high complexity profiles were executed through both engines. The validation demonstrates **perfect concordance** across all computed metrics, including dimension-level raw scores, weighted contributions, overall complexity scores, risk bands, and decision outcomes. These results confirm that the web application faithfully replicates the Excel formula logic and can be deployed with confidence for production use.
+This report presents the results of a comprehensive validation exercise comparing the scoring outputs of an Excel-based complexity assessment workbook against its deployed web application counterpart, **as those two tools existed prior to the HEM CTM checklist addendum** (see status note above). Three test scenarios spanning low, medium, and high complexity profiles were executed through both engines. The validation demonstrates **perfect concordance** across all computed metrics, including dimension-level raw scores, weighted contributions, overall complexity scores, risk bands, and decision outcomes. These results confirm that the web application faithfully replicated the Excel formula logic at that time and was deployed with confidence for production use.
 
 ## Table of Contents
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clinical Trial Complexity Assessment Tool</title>
-  <meta name="description" content="Interactive go/no-go decision support tool for assessing clinical trial complexity across 5 dimensions and 34 criteria.">
+  <meta name="description" content="Interactive go/no-go decision support tool for assessing clinical trial complexity across 5 core dimensions (36 criteria), plus a supplemental data/specimen complexity module for non-interventional studies.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
@@ -78,7 +78,7 @@
         <svg class="w-6 h-6 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <h1 class="text-xl font-bold tracking-tight">Clinical Trial Complexity Assessment</h1>
       </div>
-      <p class="text-blue-200 text-xs mt-0.5 ml-8">Go / No-Go Decision Support · 5 Dimensions · 34 Criteria · OPAL / EFACCT Framework</p>
+      <p class="text-blue-200 text-xs mt-0.5 ml-8">Go / No-Go Decision Support · 5 Dimensions · 36 Criteria · + Supplemental Data/Specimen Module · OPAL / EFACCT Framework</p>
       <p class="text-blue-200 text-xs mt-1 ml-8">Reference cards:
         <a href="cards/laminated-card.html" class="underline hover:text-white">Laminated Card</a>
         ·
@@ -86,7 +86,7 @@
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <span id="progress-pill" class="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full font-medium">0 / 34 scored</span>
+      <span id="progress-pill" class="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full font-medium">0 / 36 scored</span>
       <button onclick="expandAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Expand All</button>
       <button onclick="collapseAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Collapse All</button>
       <button onclick="resetAll()" class="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded-lg text-xs font-medium transition">Reset</button>
@@ -135,7 +135,7 @@
         API Key
       </button>
     </div>
-    <p class="text-xs text-slate-500 mb-4">Upload a study protocol (PDF or DOCX). AI reads the document and suggests scores for all 34 criteria — you review and adjust before applying to the assessment.</p>
+    <p class="text-xs text-slate-500 mb-4">Upload a study protocol (PDF or DOCX). AI reads the document and suggests scores for all 43 criteria (36 core + 7 supplemental) — you review and adjust before applying to the assessment.</p>
 
     <!-- Drop Zone -->
     <div id="upload-zone" class="upload-zone rounded-xl p-6 text-center"
@@ -254,6 +254,10 @@
 
     </div><!-- end results panel -->
   </div><!-- end flex row -->
+
+  <!-- ═══ SUPPLEMENTAL: DIMENSION 6 ═══════════════════════════════════════════ -->
+  <div class="mt-5" id="dim6-panel"></div>
+
 </div><!-- end max-w container -->
 
 <!-- ═══════════════════════════════════════════════════════════════════════════
@@ -313,7 +317,7 @@ const DIMS = [
   },
   {
     id:2, name:"Operational Execution & Site Burden",
-    weight:1.5, maxRaw:24, maxWt:36.0, rfThresh:17,
+    weight:1.5, maxRaw:27, maxWt:40.5, rfThresh:19,
     color:"#8b5cf6", bg:"#f5f3ff",
     items:[
       {id:"2.1", name:"Number of Study Visits", opts:[
@@ -363,6 +367,12 @@ const DIMS = [
         {s:1,d:"Enhanced AE monitoring"},
         {s:2,d:"Real-time SAE / frequent reporting"},
         {s:3,d:"Complex: DSMB / frequent safety labs / specialized reporting"}
+      ]},
+      {id:"2.9", name:"Unscheduled / Event-Driven Visit Burden", opts:[
+        {s:0,d:"No unscheduled/event-triggered visits anticipated"},
+        {s:1,d:"Occasional unscheduled contact (e.g., phone triage), low frequency"},
+        {s:2,d:"Regular unscheduled/urgent visits (e.g., VOC or bleeding-episode evaluation), business-hours capacity sufficient"},
+        {s:3,d:"Frequent/unpredictable unscheduled visits requiring 24/7 availability, ER coordination, or after-hours dosing"}
       ]}
     ]
   },
@@ -411,7 +421,7 @@ const DIMS = [
   },
   {
     id:4, name:"Resource & Workforce Capacity",
-    weight:1.3, maxRaw:21, maxWt:27.3, rfThresh:15,
+    weight:1.3, maxRaw:24, maxWt:31.2, rfThresh:17,
     color:"#f59e0b", bg:"#fffbeb",
     items:[
       {id:"4.1", name:"Coordinator Time Required", opts:[
@@ -455,12 +465,19 @@ const DIMS = [
         {s:1,d:"Moderate available capacity"},
         {s:2,d:"Limited capacity — near maximum"},
         {s:3,d:"At or over current capacity"}
+      ]},
+      {id:"4.8", name:"Long-Term Follow-Up (LTFU) Commitment", opts:[
+        {s:0,d:"No extended follow-up beyond standard close-out (≤1 year)"},
+        {s:1,d:"Extended follow-up 1–5 years post-treatment, low-intensity"},
+        {s:2,d:"Extended follow-up 5–10 years, periodic visits or specialized monitoring"},
+        {s:3,d:"Extended follow-up >10 years (e.g., 15-year gene therapy LTFU), sustained visits, specialized long-term safety monitoring"}
       ]}
     ]
   },
   {
     id:5, name:"Patient Population & Recruitment",
     weight:1.0, maxRaw:18, maxWt:18.0, rfThresh:13,
+    note:"For rare/ultra-rare caseloads, this dimension will often run Medium–High by default (small population + competing trials are the norm, not a red flag). Recommend site-specific quartile bands once you have pilot data — see calibration notes.",
     color:"#ef4444", bg:"#fef2f2",
     items:[
       {id:"5.1", name:"Target Population Accessibility", opts:[
@@ -503,7 +520,7 @@ const DIMS = [
   }
 ];
 
-const TOTAL_MAX_WT = 124.5;
+const TOTAL_MAX_WT = 132.9; // 25.2 (D1) + 40.5 (D2) + 18 (D3) + 31.2 (D4) + 18 (D5) — Dimension 6 is supplemental and excluded
 
 // Decision matrix rows
 const MATRIX = [
@@ -518,9 +535,70 @@ const MATRIX = [
   {oMin:66, oMax:100, d5Min:13, d5Max:18, dec:"NO-GO",                color:"#dc2626", bg:"#fee2e2", desc:"Decline — risk of failure is too high"}
 ];
 
+// ─── SUPPLEMENTAL DIMENSION 6 (kept out of the core 0–100 score — see README) ──
+// A large longitudinal EMR-abstraction cohort study and a Phase II drug trial
+// aren't complex in comparable ways. This is reported as its own parallel
+// number, never blended into TOTAL_MAX_WT / overallScore().
+const DIM6 = {
+  id:6, name:"Study Design Modality & Data/Specimen Complexity",
+  maxRaw:21, supplemental:true,
+  color:"#0891b2", bg:"#ecfeff",
+  items:[
+    {id:"6.1", name:"Study Design Modality", opts:[
+      {s:0,d:"Simple observational/registry design, single data source, cross-sectional or short follow-up"},
+      {s:1,d:"Observational cohort with a defined follow-up schedule, single data source"},
+      {s:2,d:"Multi-source cohort (EMR + prospective visits + specimens), or a qualitative study with a structured protocol"},
+      {s:3,d:"Complex multi-modal design combining retrospective EMR abstraction, prospective visits, specimens, PROs, and/or qualitative components"}
+    ]},
+    {id:"6.2", name:"Qualitative Data Collection Burden", opts:[
+      {s:0,d:"No qualitative component"},
+      {s:1,d:"Limited qualitative component (e.g., brief open-ended survey items), no formal coding"},
+      {s:2,d:"Semi-structured interviews/focus groups with a defined guide; transcription and thematic coding; standard qualitative software"},
+      {s:3,d:"Extensive qualitative program across multiple stakeholder groups; saturation-based sampling; multi-coder reliability process; specialized staff required"}
+    ]},
+    {id:"6.3", name:"Retrospective EMR/Chart Abstraction Burden", opts:[
+      {s:0,d:"No retrospective chart review required"},
+      {s:1,d:"Limited abstraction (<50 charts or a narrow, well-structured field set), primarily electronic/structured pull"},
+      {s:2,d:"Moderate abstraction (50–500 charts, or years of longitudinal history/patient), mix of structured pull and manual review"},
+      {s:3,d:"Extensive manual abstraction (>500 charts, or deep multi-year/decade history/patient), heavily manual, multiple source systems or outside-record requests"}
+    ]},
+    {id:"6.4", name:"Prospective & Electronic Abstraction Infrastructure", opts:[
+      {s:0,d:"No prospective EMR/electronic abstraction; data collected solely via study visit forms"},
+      {s:1,d:"Periodic manual prospective chart review at defined intervals"},
+      {s:2,d:"Structured electronic data feed (e.g., EHR interface, registry linkage, i2b2/OMOP extract) requiring informatics/IT setup"},
+      {s:3,d:"Continuous/near-real-time electronic capture requiring dedicated informatics support, cross-system data-use agreements, ongoing quality monitoring"}
+    ]},
+    {id:"6.5", name:"Biospecimen Collection & Biobanking", opts:[
+      {s:0,d:"No specimen collection"},
+      {s:1,d:"Standard specimen collection, processed by local/commercial lab, no long-term storage"},
+      {s:2,d:"Specialized processing (e.g., PBMC isolation, plasma separation, defined timing windows), short/medium-term storage"},
+      {s:3,d:"Complex biobanking: multiple specimen types, specialized preservation (−80°C or LN2), long-term chain-of-custody storage, and/or external sharing"}
+    ]},
+    {id:"6.6", name:"Patient-Reported Outcome (PRO) Burden", opts:[
+      {s:0,d:"No PRO collection"},
+      {s:1,d:"Single brief PRO instrument, infrequent administration (2–3 visits)"},
+      {s:2,d:"Multiple PRO instruments or frequent administration (every visit), standard ePRO platform"},
+      {s:3,d:"Extensive/complex PRO battery, high-frequency or diary-based collection, multiple platforms, or population-specific adaptation (e.g., pediatric proxy, low-literacy)"}
+    ]},
+    {id:"6.7", name:"Longitudinal Duration & Cohort Scale", opts:[
+      {s:0,d:"≤2 years total duration, <100 participants"},
+      {s:1,d:"2–5 years, 100–500 participants"},
+      {s:2,d:"5–10 years, 500–2,000 participants, or multi-site coordination required"},
+      {s:3,d:">10 years and/or >2,000 participants, sustained multi-year staffing and long-term data/specimen stewardship required"}
+    ]}
+  ]
+};
+function dim6Band(raw) {
+  if (raw <= 7)  return {label:'Low',    color:'#16a34a'};
+  if (raw <= 14) return {label:'Medium', color:'#f59e0b'};
+  return               {label:'High',    color:'#dc2626'};
+}
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const scores = {};
+const scores6 = {};
 const accordionOpen = {1:true, 2:true, 3:true, 4:true, 5:true};
+let accordion6Open = true;
 let radarChart = null;
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -529,6 +607,12 @@ function rawScore(dim) {
 }
 function totalScored() {
   return Object.keys(scores).length;
+}
+function rawScore6() {
+  return DIM6.items.reduce((s, it) => s + (scores6[it.id] ?? 0), 0);
+}
+function totalScored6() {
+  return Object.keys(scores6).length;
 }
 function overallScore() {
   const wt = DIMS.reduce((s, d) => s + rawScore(d) * d.weight, 0);
@@ -570,6 +654,12 @@ function renderDims() {
       </button>
       <div id="acc-${dim.id}" class="accordion-body ${accordionOpen[dim.id] ? 'open' : 'shut'} border-t border-slate-100" style="background:${dim.bg}">
         <div class="p-4 space-y-5">
+          ${dim.note ? `
+            <div class="flex items-start gap-2 bg-white/70 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-600">
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>${dim.note}</span>
+            </div>
+          ` : ''}
           ${dim.items.map(it => renderItem(it, dim.color)).join('')}
         </div>
       </div>
@@ -578,7 +668,7 @@ function renderDims() {
   });
 }
 
-function renderItem(item, accentColor) {
+function renderItem(item, accentColor, supp) {
   const sid = item.id.replace('.', '_');
   return `
     <div class="item-row" id="item-${sid}">
@@ -590,7 +680,7 @@ function renderItem(item, accentColor) {
         ${item.opts.map(opt => `
           <button
             id="btn-${sid}-${opt.s}"
-            onclick="setScore('${item.id}', ${opt.s})"
+            onclick="setScore('${item.id}', ${opt.s}, ${supp ? 'true' : 'false'})"
             class="score-btn rounded-lg p-2 text-left text-xs leading-snug"
             aria-label="Score ${opt.s}: ${opt.d}"
           >
@@ -601,6 +691,63 @@ function renderItem(item, accentColor) {
       </div>
     </div>
   `;
+}
+
+// ─── RENDER SUPPLEMENTAL DIMENSION 6 ───────────────────────────────────────────
+function renderDim6() {
+  const mount = document.getElementById('dim6-panel');
+  if (!mount) return;
+  mount.innerHTML = `
+    <div class="bg-white rounded-xl shadow-sm border-2 border-dashed border-cyan-300 overflow-hidden">
+      <button onclick="toggleAcc6()" class="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-cyan-50/40 transition" aria-expanded="${accordion6Open}">
+        <div class="flex items-center gap-3">
+          <div class="dim-pill text-white" style="background:${DIM6.color}">6</div>
+          <div>
+            <div class="font-semibold text-slate-800 text-sm flex items-center gap-2">
+              ${DIM6.name}
+              <span class="bg-cyan-100 text-cyan-700 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded">Supplemental</span>
+            </div>
+            <div class="text-xs text-slate-400">Not included in the Go/No-Go score above · reported separately · Max ${DIM6.maxRaw} pts</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="text-right">
+            <div id="dim6-raw" class="text-lg font-bold text-slate-300">0</div>
+            <div id="dim6-band" class="text-xs text-slate-400">/ ${DIM6.maxRaw}</div>
+          </div>
+          <svg id="chev-6" class="chevron w-5 h-5 text-slate-400 ${accordion6Open ? '' : 'rotated'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </button>
+      <div id="acc-6" class="accordion-body ${accordion6Open ? 'open' : 'shut'} border-t border-slate-100" style="background:${DIM6.bg}">
+        <div class="p-4 space-y-5">
+          <div class="flex items-start gap-2 bg-white/70 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-600">
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>For non-interventional designs (natural history studies, registries, qualitative research). A drug/device trial will usually score near 0 here — that's expected, not an error. Scored 0–3 per item, same as Dimensions 1–5, but kept out of the overall percentage and Go/No-Go decision since a data-heavy cohort study and a Phase II drug trial aren't complex in comparable ways.</span>
+          </div>
+          <div id="dim6-progress" class="text-xs font-semibold text-slate-500">0 / 7 supplemental items scored</div>
+          ${DIM6.items.map(it => renderItem(it, DIM6.color, true)).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+function toggleAcc6() {
+  accordion6Open = !accordion6Open;
+  document.getElementById('acc-6').className = `accordion-body ${accordion6Open ? 'open' : 'shut'} border-t border-slate-100`;
+  document.getElementById('chev-6').classList.toggle('rotated', !accordion6Open);
+}
+function updateDim6UI() {
+  const raw = rawScore6();
+  const scored6 = totalScored6();
+  const band = dim6Band(raw);
+  const rawEl = document.getElementById('dim6-raw');
+  const bandEl = document.getElementById('dim6-band');
+  const progEl = document.getElementById('dim6-progress');
+  if (rawEl) { rawEl.textContent = raw; rawEl.style.color = scored6 > 0 ? band.color : '#cbd5e1'; }
+  if (bandEl) bandEl.innerHTML = scored6 > 0 ? `<span style="color:${band.color}" class="font-semibold">${band.label}</span> / ${DIM6.maxRaw}` : `/ ${DIM6.maxRaw}`;
+  if (progEl) progEl.textContent = `${scored6} / 7 supplemental items scored`;
 }
 
 // ─── ACCORDION ────────────────────────────────────────────────────────────────
@@ -620,19 +767,20 @@ function refreshAcc(id) {
 }
 
 // ─── SET SCORE ────────────────────────────────────────────────────────────────
-function setScore(itemId, score) {
+function setScore(itemId, score, supp) {
+  const store = supp ? scores6 : scores;
   const sid = itemId.replace('.', '_');
-  const prev = scores[itemId];
+  const prev = store[itemId];
 
   // If clicking the same score, deselect
   if (prev === score) {
-    delete scores[itemId];
+    delete store[itemId];
     [0,1,2,3].forEach(s => {
       const b = document.getElementById(`btn-${sid}-${s}`);
       if (b) b.classList.remove('sel-0','sel-1','sel-2','sel-3');
     });
   } else {
-    scores[itemId] = score;
+    store[itemId] = score;
     [0,1,2,3].forEach(s => {
       const b = document.getElementById(`btn-${sid}-${s}`);
       if (!b) return;
@@ -650,7 +798,10 @@ function updateAll() {
   const dim5raw = rawScore(DIMS[4]);
 
   // Progress pill
-  document.getElementById('progress-pill').textContent = `${scored} / 34 scored`;
+  document.getElementById('progress-pill').textContent = `${scored} / 36 scored`;
+
+  // Supplemental Dimension 6
+  updateDim6UI();
 
   // Dim raw scores + color
   DIMS.forEach(dim => {
@@ -716,7 +867,7 @@ function updateAll() {
     document.getElementById('bd-overall').textContent = `${ov}/100`;
     document.getElementById('bd-overall').style.color = gaugeColor;
     document.getElementById('bd-dim5').textContent = `${dim5raw}/18`;
-    document.getElementById('bd-scored').textContent = `${scored}/34`;
+    document.getElementById('bd-scored').textContent = `${scored}/36`;
   } else {
     badge.style.background = '#f1f5f9';
     badge.style.color = '#94a3b8';
@@ -831,7 +982,9 @@ function highlightMatrixCell(ov, dim5raw, scored) {
 function resetAll() {
   if (!confirm('Reset all scores? This cannot be undone.')) return;
   Object.keys(scores).forEach(k => delete scores[k]);
+  Object.keys(scores6).forEach(k => delete scores6[k]);
   renderDims();
+  renderDim6();
   updateAll();
 }
 
@@ -872,7 +1025,21 @@ function exportJSON() {
         score: scores[it.id] ?? null,
         descriptor: scores[it.id] != null ? it.opts[scores[it.id]].d : null
       }))
-    }))
+    })),
+    supplementalDimension: {
+      id: DIM6.id,
+      name: DIM6.name,
+      note: "Not included in overallScore/recommendation — reported separately.",
+      rawScore: rawScore6(),
+      maxRaw: DIM6.maxRaw,
+      band: dim6Band(rawScore6()).label,
+      itemsScored: totalScored6(),
+      items: DIM6.items.map(it => ({
+        id: it.id, name: it.name,
+        score: scores6[it.id] ?? null,
+        descriptor: scores6[it.id] != null ? it.opts[scores6[it.id]].d : null
+      }))
+    }
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
@@ -978,7 +1145,7 @@ function buildPrompt(protocolText) {
   if (truncated) text = text.slice(0, MAX_CHARS);
 
   const itemList = [];
-  DIMS.forEach(dim => {
+  [...DIMS, DIM6].forEach(dim => {
     dim.items.forEach(item => {
       itemList.push({
         id: item.id,
@@ -993,9 +1160,9 @@ function buildPrompt(protocolText) {
     ? '\n[Protocol text truncated to 80,000 characters due to context limits — focus on the content provided.]'
     : '';
 
-  return `You are an expert clinical trial feasibility analyst. Read the protocol text below and score each of the 34 complexity criteria on a 0–3 scale.
+  return `You are an expert clinical trial feasibility analyst. Read the protocol text below and score each of the ${itemList.length} complexity criteria on a 0–3 scale. The last 7 items (6.x) cover study-design modality and data/specimen complexity (qualitative methods, EMR abstraction, biospecimens, PROs, longitudinal scale) — for a standard interventional drug/device trial these will usually score 0; only score them higher if the protocol actually describes that kind of work.
 
-SCORING CRITERIA (34 items):
+SCORING CRITERIA (${itemList.length} items):
 ${JSON.stringify(itemList, null, 2)}
 
 Return ONLY a valid JSON object with exactly this structure:
@@ -1006,7 +1173,7 @@ Return ONLY a valid JSON object with exactly this structure:
 }
 
 Rules:
-- Include all 34 item IDs exactly as listed above
+- Include all ${itemList.length} item IDs exactly as listed above
 - Base every score strictly on content found in the protocol
 - If evidence is absent for an item, default to 0 and note it in the rationale
 - Do not add any text outside the JSON object${truncNote}
@@ -1089,10 +1256,10 @@ function showReviewModal() {
   container.innerHTML = '';
   const COLOR = ['#16a34a','#84cc16','#f59e0b','#dc2626'];
 
-  DIMS.forEach(dim => {
+  [...DIMS, DIM6].forEach(dim => {
     const hdr = document.createElement('div');
     hdr.className = 'mt-4 mb-1 first:mt-0';
-    hdr.innerHTML = `<h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">${dim.id} · ${dim.name}</h4>`;
+    hdr.innerHTML = `<h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">${dim.id} · ${dim.name}${dim.supplemental ? ' <span class="normal-case font-medium text-cyan-600">(supplemental — not in Go/No-Go score)</span>' : ''}</h4>`;
     container.appendChild(hdr);
 
     dim.items.forEach(item => {
@@ -1136,17 +1303,19 @@ function closeReviewModal() {
 
 function applyAIScores() {
   let applied = 0;
-  DIMS.forEach(dim => {
+  [...DIMS, DIM6].forEach(dim => {
+    const store = dim.supplemental ? scores6 : scores;
     dim.items.forEach(item => {
       const sel = document.getElementById('ps-' + item.id);
       if (sel && sel.value !== '') {
-        scores[item.id] = Number(sel.value);
+        store[item.id] = Number(sel.value);
         applied++;
       }
     });
   });
   closeReviewModal();
   renderDims();
+  renderDim6();
   updateAll();
   showToast('✓ Applied ' + applied + ' AI-suggested scores. Review each item and adjust as needed.');
 }
@@ -1205,6 +1374,7 @@ function showToast(msg) {
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('info-date').value = new Date().toISOString().slice(0,10);
   renderDims();
+  renderDim6();
   renderMatrix();
   updateAll();
 });

@@ -1,6 +1,6 @@
 # HEM CTM Checklist Addendum — Draft for Review
 
-**Status:** Draft, not yet integrated into the live tool, the Excel workbook, or `checklist-report.md`. This document proposes specific item text and scoring anchors for group review before anything is wired into the scoring engine.
+**Status: Adopted into the live tool and `checklist-report.md` for implementation testing.** Items 2.9, 4.8, the Dimension 5 recalibration note, and supplemental Dimension 6 are live in `index.html` / `offline-bundle/index.html` and documented in `checklist-report.md` §5, §7, §8, §8a. **Not yet updated:** the Excel workbook (`data/complexity-scoring-engine.xlsx`) — see the status note at the top of `validation-report.md` for what that means for Excel/web parity during this testing phase. This document remains the source spec for the item text/anchors below.
 
 **Scope:** Drafted for a non-malignant hematology CTM caseload — sickle cell disease, hemophilia, bone marrow failure syndromes, and general bleeding/clotting disorders — including non-interventional study designs (qualitative research, longitudinal EMR-based cohorts) that the current 34-item checklist wasn't built to score.
 
