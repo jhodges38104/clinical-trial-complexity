@@ -1,0 +1,85 @@
+PROTOCOL TITLE: A Phase II, Randomized, Double-Blind, Placebo-Controlled Study of
+Investigational Agent XJ-401 in Adult Patients with Relapsed/Refractory
+Non-Hodgkin Lymphoma
+
+PROTOCOL NUMBER: XJ401-201
+VERSION: 3.0, dated 2026-06-01
+
+1. BACKGROUND AND RATIONALE
+Non-Hodgkin lymphoma (NHL) remains a significant unmet medical need for patients
+who relapse after standard chemoimmunotherapy. XJ-401 is a first-in-class
+bispecific antibody targeting CD20 and CD3.
+
+2. STUDY OBJECTIVES
+Primary: Evaluate overall response rate (ORR) per Lugano criteria.
+Secondary: Progression-free survival, duration of response, safety and
+tolerability, pharmacokinetics, and patient-reported outcomes (PROs) via the
+FACT-Lym questionnaire administered at baseline, cycle 3, cycle 6, and end of
+treatment.
+
+3. STUDY DESIGN
+This is a multi-center, randomized (2:1), double-blind, placebo-controlled
+trial across approximately 40 sites in North America and Europe. Patients will
+be stratified by prior lines of therapy and lymphoma subtype.
+
+4. ELIGIBILITY CRITERIA
+Inclusion: Age >= 18 years; histologically confirmed NHL; ECOG performance
+status 0-2; measurable disease per Lugano criteria; adequate organ function
+(ANC >= 1000/uL, platelets >= 75,000/uL, creatinine clearance >= 40 mL/min,
+AST/ALT <= 2.5x ULN, total bilirubin <= 1.5x ULN).
+Exclusion: Active CNS lymphoma; prior CAR-T therapy within 3 months; active
+autoimmune disease requiring systemic immunosuppression; known HIV, active
+hepatitis B or C; pregnancy or breastfeeding.
+
+5. STUDY PROCEDURES AND SCHEDULE OF ASSESSMENTS
+Screening (Day -28 to Day -1): informed consent, medical history, physical
+exam, ECOG, vital signs, 12-lead ECG, echocardiogram, complete blood count,
+comprehensive metabolic panel, coagulation panel, pregnancy test, HIV/HBV/HCV
+serology, bone marrow biopsy, PET/CT imaging, tumor biopsy for central
+pathology review and biomarker analysis, pharmacogenomic blood sample
+(optional sub-study).
+
+Treatment period: 21-day cycles for up to 12 cycles. Study drug administered
+by IV infusion on Days 1, 8, and 15 of each cycle with mandatory 4-hour
+post-infusion monitoring for cytokine release syndrome (CRS) during Cycle 1.
+Pre-medication with corticosteroids, antihistamines, and antipyretics required.
+Hospitalization is required for the first 48 hours after the initial dose for
+CRS monitoring.
+
+Pharmacokinetic sampling: intensive PK draws at pre-dose, 0.5h, 1h, 2h, 4h,
+8h, 24h, 48h, and 72h post-infusion during Cycle 1 Day 1, plus trough samples
+at every subsequent visit.
+
+Biomarker/specimen collection: mandatory tumor biopsies at baseline and Cycle
+3; optional research biopsies at progression; whole blood for
+immunophenotyping at every cycle; archival tissue submission required for
+central lab confirmation of CD20 expression before randomization.
+
+Patient-reported outcomes: FACT-Lym and EQ-5D-5L questionnaires administered
+electronically at each visit via a dedicated ePRO tablet device provided to
+each patient.
+
+Long-term follow-up: patients will be followed for survival every 12 weeks
+for up to 5 years after end of treatment, including telephone contact and
+local lab review.
+
+6. STATISTICAL CONSIDERATIONS
+Sample size of 240 patients (160 active / 80 placebo) provides 90% power to
+detect a 20% improvement in ORR at a two-sided alpha of 0.05, accounting for
+a 10% dropout rate. Interim analysis for futility and safety planned after 80
+patients complete Cycle 3, reviewed by an independent Data Safety Monitoring
+Board (DSMB).
+
+7. SAFETY REPORTING
+Adverse events graded per CTCAE v5.0. Serious adverse events (SAEs) must be
+reported to the sponsor within 24 hours of awareness. CRS and neurotoxicity
+events must be reported using ASTCT consensus grading and reported to the
+DSMB within 24 hours regardless of seriousness.
+
+8. REGULATORY AND ANCILLARY REQUIREMENTS
+Central IRB review required at all sites. Investigational New Drug (IND)
+application on file with FDA. Sites must maintain a temperature-monitored
+-20C freezer for biospecimen storage. Pharmacy must prepare study drug under
+a validated aseptic compounding protocol with same-day administration only.
+Radiology imaging must be submitted to a central imaging core lab for blinded
+independent central review (BICR).
