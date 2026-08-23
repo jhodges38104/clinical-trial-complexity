@@ -32,6 +32,17 @@ the offline bundle's vendored copies in their place:
 STUB_CDN=1 node tests/e2e-upload.js
 ```
 
+### On a sandbox with a pre-installed Chromium
+
+If the installed `playwright` package's pinned browser revision doesn't match
+what's actually on disk (`browserType.launch: Executable doesn't exist at ...`),
+point both scripts at the sandbox's own binary instead of downloading one:
+
+```bash
+PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome node tests/make-fixtures.js
+PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome node tests/e2e-upload.js
+```
+
 ## Fixtures
 
 `fixtures/sample-protocol.txt` is a synthetic Phase II oncology protocol written

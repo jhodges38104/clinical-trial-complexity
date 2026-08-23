@@ -1,5 +1,6 @@
 .DS_Store
 .claude/
+node_modules/
 
 # Word/PDF deliverables — attached to GitHub Releases instead of committed
 release-assets/
