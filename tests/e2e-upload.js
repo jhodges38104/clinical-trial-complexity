@@ -13,6 +13,10 @@
 //
 // STUB_CDN=1 serves the offline bundle's vendored libraries in place of the
 // CDN ones, for networks (CI sandboxes, hospital VLANs) that block those hosts.
+//
+// PLAYWRIGHT_CHROMIUM_PATH points at a pre-installed Chromium binary, for
+// sandboxes that ship a browser whose revision doesn't match the installed
+// playwright package's expected download.
 
 const path = require('path');
 const fs = require('fs');
@@ -37,7 +41,10 @@ for (const f of ['sample-protocol.docx', 'sample-protocol.pdf']) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 

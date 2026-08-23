@@ -134,7 +134,9 @@ console.log('wrote', path.relative(process.cwd(), docxPath));
     `<style>body{font-family:monospace;white-space:pre-wrap;font-size:11pt;padding:40px}</style>` +
     `<body>${xmlEscape(text)}</body>`;
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined
+  });
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'load' });
   const pdfPath = path.join(FIXTURES, 'sample-protocol.pdf');
