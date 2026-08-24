@@ -13,6 +13,10 @@
 //
 // STUB_CDN=1 serves the offline bundle's vendored libraries in place of the
 // CDN ones, for networks (CI sandboxes, hospital VLANs) that block those hosts.
+//
+// PLAYWRIGHT_CHROMIUM_PATH points at a pre-installed Chromium binary, for
+// sandboxes that ship a browser whose revision doesn't match the installed
+// playwright package's expected download.
 
 const path = require('path');
 const fs = require('fs');
@@ -29,7 +33,10 @@ function check(name, pass, detail) {
   console.log(`${pass ? 'PASS' : 'FAIL'}  ${name}${detail ? '  — ' + detail : ''}`);
 }
 
-for (const f of ['sample-protocol.docx', 'sample-protocol.pdf']) {
+for (const f of [
+  'sample-protocol.docx', 'sample-protocol.pdf',
+  'sample-protocol-long.docx'
+]) {
   if (!fs.existsSync(path.join(FIXTURES, f))) {
     console.error(`Missing fixture ${f} — run: node tests/make-fixtures.js`);
     process.exit(2);
@@ -37,7 +44,10 @@ for (const f of ['sample-protocol.docx', 'sample-protocol.pdf']) {
 }
 
 (async () => {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined
+  });
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
 
@@ -175,6 +185,25 @@ for (const f of ['sample-protocol.docx', 'sample-protocol.pdf']) {
   });
   check('PDF text is whitespace-normalized', ws.runs === 0,
     `${ws.runs} multi-space runs in ${ws.len} chars`);
+  await page.evaluate(() => closeReviewModal());
+
+  // ── Long protocol / 80,000-character prompt cap.
+  // sample-protocol-long.docx pads the same protocol text with clearly-marked
+  // filler past buildPrompt()'s truncation cap, ending in a canary string
+  // that must never survive into the captured prompt.
+  await page.evaluate(() => clearUpload());
+  await page.setInputFiles('#file-input', path.join(FIXTURES, 'sample-protocol-long.docx'));
+  capturedPrompt = null;
+  await page.click('#analyze-btn');
+  await page.waitForSelector('#review-modal:not(.hidden)', { timeout: 60000 });
+  check('Long protocol still reaches the review modal', true);
+  check('Long protocol is flagged as truncated in the prompt',
+    !!capturedPrompt && capturedPrompt.includes('truncated to 80,000 characters'),
+    capturedPrompt ? `prompt ${capturedPrompt.length} chars` : 'no prompt captured');
+  check('Content before the cap still reaches the prompt',
+    !!capturedPrompt && capturedPrompt.includes('XJ-401'));
+  check('Content after the cap is actually dropped',
+    !!capturedPrompt && !capturedPrompt.includes('QR-BEYOND-CAP-9000'));
   await page.evaluate(() => closeReviewModal());
 
   // ── Unsupported file type.
