@@ -5,9 +5,10 @@ app's most involved path, and the one most likely to break silently.
 
 `e2e-upload.js` drives the real page in headless Chromium: it uploads a DOCX and
 a PDF, confirms the extracted text reaches the prompt, that all 43 criteria come
-back through the review modal, and that applying them moves the scoring engine.
-The OpenAI call is intercepted and answered locally, so **the run needs no API
-key and costs nothing**.
+back through the review modal, that applying them moves the scoring engine, and
+that a protocol beyond the 80,000-character prompt cap gets truncated rather
+than silently overflowing the request. The OpenAI call is intercepted and
+answered locally, so **the run needs no API key and costs nothing**.
 
 ## Running
 
@@ -20,7 +21,7 @@ node tests/e2e-upload.js                                        # hosted index.h
 TARGET_PAGE=/offline-bundle/index.html node tests/e2e-upload.js # offline bundle
 ```
 
-Both targets should report `24/24 checks passed`.
+Both targets should report `28/28 checks passed`.
 
 ### On a network that blocks CDNs
 
@@ -32,6 +33,17 @@ the offline bundle's vendored copies in their place:
 STUB_CDN=1 node tests/e2e-upload.js
 ```
 
+### On a sandbox with a pre-installed Chromium
+
+If the installed `playwright` package's pinned browser revision doesn't match
+what's actually on disk (`browserType.launch: Executable doesn't exist at ...`),
+point both scripts at the sandbox's own binary instead of downloading one:
+
+```bash
+PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome node tests/make-fixtures.js
+PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome node tests/e2e-upload.js
+```
+
 ## Fixtures
 
 `fixtures/sample-protocol.txt` is a synthetic Phase II oncology protocol written
@@ -40,10 +52,16 @@ dimensions (intensive PK sampling, mandatory biopsies, ePRO devices, CRS
 monitoring with overnight hospitalization, central imaging review, 5-year
 follow-up).
 
-The `.docx` and `.pdf` are generated from it by `make-fixtures.js` rather than
-committed, so they can't drift from the text they're built out of. The PDF is
-printed through headless Chromium so it carries a real text layer — which is
-what pdf.js has to parse in the app.
+`make-fixtures.js` also builds a `sample-protocol-long` variant: the same
+protocol padded with clearly-labeled filler text past the app's 80,000-character
+prompt cap, ending in a canary string that must never survive into the captured
+prompt. It exists to exercise `buildPrompt()`'s truncation path, which the plain
+fixture (well under the cap) never touches.
+
+The `.docx` and `.pdf` fixtures are generated from committed `.txt`/inline
+source rather than committed themselves, so they can't drift from the text
+they're built out of. The PDFs are printed through headless Chromium so they
+carry a real text layer — which is what pdf.js has to parse in the app.
 
 ## What the degraded-mode checks cover
 
