@@ -10,3 +10,5 @@ tests/fixtures/sample-protocol.docx
 tests/fixtures/sample-protocol.pdf
 tests/fixtures/sample-protocol-long.docx
 tests/fixtures/sample-protocol-long.pdf
+tests/fixtures/sample-protocol-blank.docx
+tests/fixtures/sample-protocol-blank.pdf
