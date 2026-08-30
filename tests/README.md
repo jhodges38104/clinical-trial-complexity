@@ -5,9 +5,10 @@ app's most involved path, and the one most likely to break silently.
 
 `e2e-upload.js` drives the real page in headless Chromium: it uploads a DOCX and
 a PDF, confirms the extracted text reaches the prompt, that all 43 criteria come
-back through the review modal, that applying them moves the scoring engine, and
-that a protocol beyond the 80,000-character prompt cap gets truncated rather
-than silently overflowing the request. The OpenAI call is intercepted and
+back through the review modal, that applying them moves the scoring engine, that
+a protocol beyond the 80,000-character prompt cap gets truncated rather than
+silently overflowing the request, and that a blank/placeholder protocol is
+refused before ever reaching the model. The OpenAI call is intercepted and
 answered locally, so **the run needs no API key and costs nothing**.
 
 ## Running
@@ -21,7 +22,7 @@ node tests/e2e-upload.js                                        # hosted index.h
 TARGET_PAGE=/offline-bundle/index.html node tests/e2e-upload.js # offline bundle
 ```
 
-Both targets should report `28/28 checks passed`.
+Both targets should report `32/32 checks passed`.
 
 ### On a network that blocks CDNs
 
@@ -57,6 +58,11 @@ protocol padded with clearly-labeled filler text past the app's 80,000-character
 prompt cap, ending in a canary string that must never survive into the captured
 prompt. It exists to exercise `buildPrompt()`'s truncation path, which the plain
 fixture (well under the cap) never touches.
+
+A `sample-protocol-blank` variant — a short placeholder cover page with no real
+protocol content — exercises the opposite edge: `analyzeProtocol()`'s guard
+against sending near-empty text (under 50 characters once normalized) to the
+model at all.
 
 The `.docx` and `.pdf` fixtures are generated from committed `.txt`/inline
 source rather than committed themselves, so they can't drift from the text

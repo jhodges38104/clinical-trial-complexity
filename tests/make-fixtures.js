@@ -1,7 +1,9 @@
 // Builds the DOCX and PDF upload fixtures from fixtures/sample-protocol.txt,
-// plus a second "long" variant that pads the same protocol past the app's
+// plus a "long" variant that pads the same protocol past the app's
 // 80,000-character prompt cap (see buildPrompt() in index.html) so the
-// truncation path can be exercised end-to-end.
+// truncation path can be exercised end-to-end, and a "blank" variant — a
+// placeholder cover page with no real protocol content — that exercises
+// analyzeProtocol()'s "Could not extract readable text" guard.
 //
 // The binaries aren't committed — they're generated, so they can't drift from
 // the text they're built out of. Run this once before `e2e-upload.js`.
@@ -39,6 +41,12 @@ const longText =
   text + '\n\n' + filler.trim() +
   `\n\nCANARY MARKER ${CANARY}: this text lives after the 80,000-character ` +
   'cutoff and must never reach the AI prompt.';
+
+// Some site coordinators upload a placeholder — a cover page saved before the
+// protocol body was attached, or a scan that never made it past the title
+// slide. Comfortably under the app's 50-character floor once normalized, so
+// it should never reach the model.
+const blankText = 'PROTOCOL SYNOPSIS\nTo be completed.';
 
 // ── DOCX ─────────────────────────────────────────────────────────────────────
 // A minimal but valid WordprocessingML package. mammoth only needs
@@ -143,7 +151,8 @@ function buildDocx(sourceText) {
 
 for (const [name, src] of [
   ['sample-protocol.docx', text],
-  ['sample-protocol-long.docx', longText]
+  ['sample-protocol-long.docx', longText],
+  ['sample-protocol-blank.docx', blankText]
 ]) {
   const docxPath = path.join(FIXTURES, name);
   fs.writeFileSync(docxPath, buildDocx(src));
@@ -187,6 +196,7 @@ for (const [name, src] of [
 
   await buildPdf(text, path.join(FIXTURES, 'sample-protocol.pdf'));
   await buildPdf(longText, path.join(FIXTURES, 'sample-protocol-long.pdf'));
+  await buildPdf(blankText, path.join(FIXTURES, 'sample-protocol-blank.pdf'));
 
   await browser.close();
 })();

@@ -35,7 +35,7 @@ function check(name, pass, detail) {
 
 for (const f of [
   'sample-protocol.docx', 'sample-protocol.pdf',
-  'sample-protocol-long.docx'
+  'sample-protocol-long.docx', 'sample-protocol-blank.docx'
 ]) {
   if (!fs.existsSync(path.join(FIXTURES, f))) {
     console.error(`Missing fixture ${f} — run: node tests/make-fixtures.js`);
@@ -205,6 +205,25 @@ for (const f of [
   check('Content after the cap is actually dropped',
     !!capturedPrompt && !capturedPrompt.includes('QR-BEYOND-CAP-9000'));
   await page.evaluate(() => closeReviewModal());
+
+  // ── Blank protocol (a placeholder cover page, e.g. one a site uploaded
+  // before the protocol body was attached). analyzeProtocol() refuses to
+  // send near-empty text to the model rather than burning an API call on it.
+  await page.evaluate(() => clearUpload());
+  alerts.length = 0;
+  capturedPrompt = null;
+  await page.setInputFiles('#file-input', path.join(FIXTURES, 'sample-protocol-blank.docx'));
+  await page.click('#analyze-btn');
+  await page.waitForTimeout(800);
+  check('Blank protocol rejected with a readable-text alert',
+    alerts.some(a => /could not extract readable text/i.test(a)), JSON.stringify(alerts));
+  check('Blank protocol never reaches the AI prompt', capturedPrompt === null);
+  const blankModals = await page.evaluate(() => ({
+    analysis: document.getElementById('analysis-modal').classList.contains('hidden'),
+    review: document.getElementById('review-modal').classList.contains('hidden')
+  }));
+  check('Analysis modal closes rather than hanging open', blankModals.analysis, JSON.stringify(blankModals));
+  check('Review modal does not open for a blank protocol', blankModals.review, JSON.stringify(blankModals));
 
   // ── Unsupported file type.
   alerts.length = 0;
