@@ -5,10 +5,14 @@ app's most involved path, and the one most likely to break silently.
 
 `e2e-upload.js` drives the real page in headless Chromium: it uploads a DOCX and
 a PDF, confirms the extracted text reaches the prompt, that all 43 criteria come
-back through the review modal, that applying them moves the scoring engine, and
-that a protocol beyond the 80,000-character prompt cap gets truncated rather
-than silently overflowing the request. The OpenAI call is intercepted and
-answered locally, so **the run needs no API key and costs nothing**.
+back through the review modal, that applying them moves the scoring engine, that
+a protocol beyond the 80,000-character prompt cap gets truncated rather than
+silently overflowing the request, and that a structurally different
+non-interventional protocol (chart abstraction, biobanking, PROs, a qualitative
+substudy) flows through the same pipeline and lands scores in the supplemental
+Dimension 6 items the oncology fixture never touches. The OpenAI call is
+intercepted and answered locally, so **the run needs no API key and costs
+nothing**.
 
 ## Running
 
@@ -21,7 +25,7 @@ node tests/e2e-upload.js                                        # hosted index.h
 TARGET_PAGE=/offline-bundle/index.html node tests/e2e-upload.js # offline bundle
 ```
 
-Both targets should report `28/28 checks passed`.
+Both targets should report `34/34 checks passed`.
 
 ### On a network that blocks CDNs
 
@@ -57,6 +61,15 @@ protocol padded with clearly-labeled filler text past the app's 80,000-character
 prompt cap, ending in a canary string that must never survive into the captured
 prompt. It exists to exercise `buildPrompt()`'s truncation path, which the plain
 fixture (well under the cap) never touches.
+
+`fixtures/sample-protocol-hem-cohort.txt` is a second, structurally different
+synthetic protocol: a non-interventional sickle cell disease natural history
+and biorepository study, written to exercise the supplemental Dimension 6 /
+HEM CTM addendum content (retrospective chart abstraction, prospective EHR
+linkage, biobanking, a PRO battery, and an embedded qualitative substudy) that
+the oncology fixture — an interventional drug trial — never describes, and so
+never exercises end-to-end through the upload → extract → prompt → review
+pipeline.
 
 The `.docx` and `.pdf` fixtures are generated from committed `.txt`/inline
 source rather than committed themselves, so they can't drift from the text
