@@ -10,9 +10,11 @@ a protocol beyond the 80,000-character prompt cap gets truncated rather than
 silently overflowing the request, and that a structurally different
 non-interventional protocol (chart abstraction, biobanking, PROs, a qualitative
 substudy) flows through the same pipeline and lands scores in the supplemental
-Dimension 6 items the oncology fixture never touches. The OpenAI call is
-intercepted and answered locally, so **the run needs no API key and costs
-nothing**.
+Dimension 6 items the oncology fixture never touches. It also uploads a legacy
+Word 97-2003 `.doc` file — a format the upload zone accepts by extension but
+can't actually parse — and confirms that fails with clear guidance instead of
+a misleading error. The OpenAI call is intercepted and answered locally, so
+**the run needs no API key and costs nothing**.
 
 ## Running
 
@@ -70,6 +72,17 @@ linkage, biobanking, a PRO battery, and an embedded qualitative substudy) that
 the oncology fixture — an interventional drug trial — never describes, and so
 never exercises end-to-end through the upload → extract → prompt → review
 pipeline.
+
+`fixtures/sample-protocol-legacy.doc` is not a protocol at all — it's a
+minimal buffer carrying the real 8-byte OLE2 Compound File Binary magic
+number that every genuine Word 97-2003 `.doc` starts with, padded past a
+plausible header size. `make-fixtures.js` generates it directly (no protocol
+text, no ZIP writer) because it exists purely to exercise the app's
+format-detection path: `.doc` is accepted by the upload zone's extension
+allow-list, but mammoth only parses the OOXML zip format `.docx` uses, so a
+real legacy `.doc` used to fail deep inside `extractDOCX()` with a generic,
+misleading error. The app now checks for the OLE2 signature up front and
+fails fast with guidance to re-save as `.docx` or PDF instead.
 
 The `.docx` and `.pdf` fixtures are generated from committed `.txt`/inline
 source rather than committed themselves, so they can't drift from the text

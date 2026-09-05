@@ -1138,10 +1138,28 @@ async function extractPDF(file) {
   });
 }
 
+// Legacy Word 97-2003 .doc files are OLE2 Compound File binaries, not the
+// Office Open XML zip that mammoth parses. The upload zone accepts .doc by
+// extension, but feeding one to mammoth just fails on the zip signature and
+// surfaces as a generic, misleading error. Detect the OLE2 magic number up
+// front and fail with guidance instead.
+const OLE2_SIGNATURE = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
+function isLegacyDoc(arrayBuffer) {
+  const head = new Uint8Array(arrayBuffer.slice(0, OLE2_SIGNATURE.length));
+  return head.length === OLE2_SIGNATURE.length &&
+    OLE2_SIGNATURE.every((b, i) => head[i] === b);
+}
+
 async function extractDOCX(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
+      if (isLegacyDoc(e.target.result)) {
+        reject(new Error('LEGACY_DOC: This looks like a legacy .doc file (the old Word 97-2003 binary ' +
+          'format), which this tool can\'t read directly. Please re-save it as .docx in Word ' +
+          '(File → Save As → Word Document) or export it to PDF, then upload again.'));
+        return;
+      }
       if (!window.mammoth) { reject(new Error('Mammoth library not loaded. Please refresh.')); return; }
       mammoth.extractRawText({ arrayBuffer: e.target.result })
         .then(result => resolve(normalizeExtractedText(result.value)))
@@ -1254,7 +1272,9 @@ async function analyzeProtocol() {
     hideAnalysisModal();
     console.error('Protocol analysis error:', err);
     const msg = err.message || '';
-    if (msg.includes('401') || msg.toLowerCase().includes('incorrect api key') || msg.toLowerCase().includes('invalid api key')) {
+    if (msg.startsWith('LEGACY_DOC:')) {
+      alert(msg.slice('LEGACY_DOC:'.length).trim());
+    } else if (msg.includes('401') || msg.toLowerCase().includes('incorrect api key') || msg.toLowerCase().includes('invalid api key')) {
       sessionStorage.removeItem('openai_api_key');
       alert('Invalid API key. Please re-enter your OpenAI API key.');
       openApiKeyModal();

@@ -5,7 +5,9 @@
 // a distinct non-interventional protocol (fixtures/sample-protocol-hem-cohort.txt)
 // that exercises the supplemental Dimension 6 / HEM CTM addendum content
 // (retrospective chart abstraction, biobanking, PROs, qualitative substudy)
-// the oncology fixture never touches.
+// the oncology fixture never touches. Also builds a synthetic legacy .doc
+// fixture (real OLE2 magic number, no real content) to exercise the app's
+// rejection path for the old binary Word format, which mammoth can't parse.
 //
 // The binaries aren't committed — they're generated, so they can't drift from
 // the text they're built out of. Run this once before `e2e-upload.js`.
@@ -155,6 +157,25 @@ for (const [name, src] of [
   fs.writeFileSync(docxPath, buildDocx(src));
   console.log('wrote', path.relative(process.cwd(), docxPath));
 }
+
+// ── Legacy .doc ──────────────────────────────────────────────────────────────
+// A real Word 97-2003 .doc is an OLE2 Compound File Binary, not the OOXML zip
+// mammoth parses. The upload zone accepts .doc by extension, so this fixture
+// exercises what happens when one actually arrives: a minimal buffer carrying
+// the real 8-byte OLE2 magic number ("D0 CF 11 E0 A1 B1 1A E1"), padded to a
+// plausible header size. It's never meant to be a fully valid compound file —
+// only to exercise the app's format-detection path before mammoth ever runs.
+const OLE2_SIGNATURE = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
+const legacyDocPath = path.join(FIXTURES, 'sample-protocol-legacy.doc');
+fs.writeFileSync(legacyDocPath, Buffer.concat([
+  OLE2_SIGNATURE,
+  Buffer.alloc(504, 0),
+  Buffer.from(
+    'This synthetic Word 97-2003 fixture exists only to exercise the ' +
+    'app\'s legacy .doc rejection path and is not a parseable compound file.',
+    'ascii')
+]));
+console.log('wrote', path.relative(process.cwd(), legacyDocPath));
 
 // ── PDF ──────────────────────────────────────────────────────────────────────
 // Printed through headless Chromium so the result is a real text-layer PDF,
