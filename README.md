@@ -33,7 +33,9 @@ low/medium/high complexity test scenarios with full concordance — see
 
 The upload → extract → score → apply pipeline is covered end-to-end by
 [`tests/e2e-upload.js`](tests/README.md), which drives the real page in headless
-Chromium against a stubbed model endpoint.
+Chromium against a stubbed model endpoint — including confirming that a
+legacy Word 97-2003 `.doc` upload fails with clear guidance rather than a
+misleading error, since the app can only parse the newer `.docx` format.
 
 ### A note on CDN availability
 
