@@ -1,7 +1,11 @@
 // Builds the DOCX and PDF upload fixtures from fixtures/sample-protocol.txt,
-// plus a second "long" variant that pads the same protocol past the app's
+// plus a "long" variant that pads the same protocol past the app's
 // 80,000-character prompt cap (see buildPrompt() in index.html) so the
-// truncation path can be exercised end-to-end.
+// truncation path can be exercised end-to-end, and a "hem-cohort" variant —
+// a distinct non-interventional protocol (fixtures/sample-protocol-hem-cohort.txt)
+// that exercises the supplemental Dimension 6 / HEM CTM addendum content
+// (retrospective chart abstraction, biobanking, PROs, qualitative substudy)
+// the oncology fixture never touches.
 //
 // The binaries aren't committed — they're generated, so they can't drift from
 // the text they're built out of. Run this once before `e2e-upload.js`.
@@ -19,6 +23,7 @@ const zlib = require('zlib');
 const FIXTURES = path.join(__dirname, 'fixtures');
 const SOURCE = path.join(FIXTURES, 'sample-protocol.txt');
 const text = fs.readFileSync(SOURCE, 'utf8');
+const hemCohortText = fs.readFileSync(path.join(FIXTURES, 'sample-protocol-hem-cohort.txt'), 'utf8');
 
 // The real protocol content is ~4.3k chars — comfortably under the app's
 // 80,000-character prompt cap. Pad it with clearly-labeled filler past that
@@ -143,7 +148,8 @@ function buildDocx(sourceText) {
 
 for (const [name, src] of [
   ['sample-protocol.docx', text],
-  ['sample-protocol-long.docx', longText]
+  ['sample-protocol-long.docx', longText],
+  ['sample-protocol-hem-cohort.docx', hemCohortText]
 ]) {
   const docxPath = path.join(FIXTURES, name);
   fs.writeFileSync(docxPath, buildDocx(src));
@@ -187,6 +193,7 @@ for (const [name, src] of [
 
   await buildPdf(text, path.join(FIXTURES, 'sample-protocol.pdf'));
   await buildPdf(longText, path.join(FIXTURES, 'sample-protocol-long.pdf'));
+  await buildPdf(hemCohortText, path.join(FIXTURES, 'sample-protocol-hem-cohort.pdf'));
 
   await browser.close();
 })();

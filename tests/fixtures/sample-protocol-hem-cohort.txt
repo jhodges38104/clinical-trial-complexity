@@ -1,0 +1,123 @@
+PROTOCOL TITLE: Sickle Cell Disease Longitudinal Natural History Study and
+Biorepository Registry with Embedded Qualitative Patient/Caregiver Experience
+Substudy
+
+PROTOCOL NUMBER: SCD-NHS-014
+VERSION: 2.1, dated 2026-04-15
+
+1. BACKGROUND AND RATIONALE
+Sickle cell disease (SCD) is a chronic, multi-system genetic hemoglobinopathy
+characterized by recurrent vaso-occlusive crises (VOCs), progressive organ
+damage, and shortened life expectancy. This is a non-interventional natural
+history study combining retrospective chart abstraction, prospective
+electronic health record (EHR) linkage, biospecimen banking, patient-reported
+outcomes, and a qualitative patient/caregiver experience substudy to
+characterize the real-world disease and treatment trajectory across the
+lifespan, including patients who have received newly approved gene therapies.
+
+2. STUDY OBJECTIVES
+Primary: Characterize the longitudinal burden of VOC frequency, organ
+complications, and healthcare utilization in a real-world SCD cohort followed
+for up to 15 years, including post-gene-therapy long-term follow-up (LTFU)
+participants.
+Secondary: Build a linked clinical-genomic-biospecimen biorepository;
+characterize patient- and caregiver-reported disease burden; and describe
+lived experience of VOC management and gene therapy decision-making through
+qualitative interviews.
+
+3. STUDY DESIGN
+This is a single-IRB, multi-site (12 academic sickle cell centers),
+non-interventional longitudinal cohort study. There is no investigational
+product and no randomization. Enrollment target is 2,400 participants across
+pediatric and adult sites, with a planned follow-up duration of 15 years to
+capture the full FDA-mandated long-term follow-up window for gene-therapy
+recipients (insertional oncogenesis and secondary malignancy surveillance).
+Design combines four concurrent data-collection modes in one protocol:
+(1) retrospective chart abstraction, (2) prospective EHR-linked electronic
+data capture, (3) biospecimen collection and long-term biobanking, and
+(4) an embedded qualitative substudy — the complex multi-modal design this
+checklist's Dimension 6 was written to score.
+
+4. ELIGIBILITY CRITERIA
+Inclusion: Confirmed diagnosis of SCD (HbSS, HbSC, HbS-beta thalassemia) of
+any age; willing to provide historical medical records; willing to provide
+biospecimens where applicable.
+Exclusion: Unwilling to consent to EHR linkage or record retrieval from
+outside institutions.
+
+5. RETROSPECTIVE CHART ABSTRACTION
+Full lifetime treatment history will be abstracted for each participant,
+frequently spanning multiple decades of care. Abstraction is expected to
+exceed 500 charts across the 12 participating centers and will require deep
+multi-year chart review per patient, including hospitalization records,
+transfusion history, hydroxyurea and disease-modifying therapy exposure, and
+transplant/gene-therapy records. A substantial fraction of source records are
+scanned or unstructured (handwritten emergency department notes, outside
+hospital discharge summaries) and will require manual review; outside-record
+requests will be needed for approximately 30% of participants who received
+care at non-network facilities before enrollment.
+
+6. PROSPECTIVE ELECTRONIC DATA CAPTURE
+Each site will establish a continuous, near-real-time electronic data feed
+from its EHR into the study's central i2b2/OMOP-based research data
+warehouse, capturing laboratory values, hospitalizations, and medication
+orders as they occur. This requires dedicated informatics support at each
+site, cross-institutional data-use agreements, and ongoing automated
+data-quality monitoring for feed interruptions and coding drift.
+
+7. UNSCHEDULED / EVENT-DRIVEN VISIT AND CONTACT BURDEN
+Because VOC frequency and severity drive nearly all clinical contact in this
+population, the study captures unscheduled, event-triggered visits rather
+than a fixed protocol-scheduled visit calendar. Sites must maintain 24/7
+on-call capacity to identify, consent, and document participants presenting
+to the emergency department or being admitted with an acute VOC, and must
+coordinate real-time data capture with after-hours ED and inpatient teams.
+
+8. BIOSPECIMEN COLLECTION AND BIOREPOSITORY
+Whole blood, plasma, and buccal/genomic DNA specimens will be collected at
+enrollment and at annual follow-up visits. Specimens undergo specialized
+processing (PBMC isolation, plasma separation under defined timing windows)
+and are stored long-term at -80C and in liquid nitrogen vapor phase with full
+chain-of-custody tracking. A subset of specimens will be shared with external
+academic and industry biorepositories under material transfer agreements to
+support future genomic and biomarker research.
+
+9. PATIENT-REPORTED OUTCOMES
+Participants complete an extensive PRO battery: the ASCQ-Me disease-specific
+instrument, PROMIS pain interference and fatigue short forms, and a
+high-frequency daily electronic pain/symptom diary completed via a
+smartphone app for 14-day bursts every quarter. Pediatric participants
+complete validated proxy-report versions administered through a caregiver,
+and low-literacy accommodations (audio-assisted electronic administration)
+are available at all sites.
+
+10. QUALITATIVE PATIENT/CAREGIVER EXPERIENCE SUBSTUDY
+A purposively sampled subset of patients, caregivers, and treating clinicians
+across all 12 sites will participate in semi-structured interviews and focus
+groups exploring VOC self-management, gene therapy decision-making, and
+transition from pediatric to adult care. Interviews are audio-recorded,
+professionally transcribed, and coded in NVivo using a multi-coder,
+consensus-based reliability process with iterative recruitment to thematic
+saturation across each stakeholder group; dedicated qualitative-methods staff
+oversee the coding process.
+
+11. LONG-TERM FOLLOW-UP FOR GENE THERAPY RECIPIENTS
+Participants who have received an FDA-approved gene therapy for SCD are
+followed under a 15-year long-term follow-up schedule with sustained
+in-person visits and specialized long-term safety monitoring, including
+integration-site analysis and ongoing surveillance for secondary
+malignancy and insertional oncogenesis, consistent with FDA long-term
+follow-up guidance for genetically modified cell therapies.
+
+12. STATISTICAL CONSIDERATIONS
+This is a descriptive natural history study; no formal hypothesis testing is
+planned for the primary objective. Enrollment of 2,400 participants across 12
+sites over a 15-year observation window is expected to provide adequate
+precision for estimating VOC incidence rates and complication prevalence
+across age strata.
+
+13. REGULATORY AND ANCILLARY REQUIREMENTS
+Single IRB of record for all 12 sites. Data-use agreements required between
+each site and the coordinating center for EHR linkage. Biorepository
+operates under a separate biobanking protocol amendment. No investigational
+product is administered under this protocol.

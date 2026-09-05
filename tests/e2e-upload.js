@@ -35,7 +35,7 @@ function check(name, pass, detail) {
 
 for (const f of [
   'sample-protocol.docx', 'sample-protocol.pdf',
-  'sample-protocol-long.docx'
+  'sample-protocol-long.docx', 'sample-protocol-hem-cohort.docx'
 ]) {
   if (!fs.existsSync(path.join(FIXTURES, f))) {
     console.error(`Missing fixture ${f} — run: node tests/make-fixtures.js`);
@@ -205,6 +205,34 @@ for (const f of [
   check('Content after the cap is actually dropped',
     !!capturedPrompt && !capturedPrompt.includes('QR-BEYOND-CAP-9000'));
   await page.evaluate(() => closeReviewModal());
+
+  // ── HEM CTM cohort protocol — a structurally different, non-interventional
+  // longitudinal study (chart abstraction, biobanking, PROs, qualitative
+  // substudy) that the supplemental Dimension 6 items were added to score.
+  // The oncology fixture above never exercises that content; this one does.
+  await page.evaluate(() => clearUpload());
+  await page.setInputFiles('#file-input', path.join(FIXTURES, 'sample-protocol-hem-cohort.docx'));
+  capturedPrompt = null;
+  await page.click('#analyze-btn');
+  await page.waitForSelector('#review-modal:not(.hidden)', { timeout: 60000 });
+  check('HEM cohort protocol reaches the review modal', true);
+  check('HEM cohort protocol text extracted into prompt',
+    !!capturedPrompt && capturedPrompt.includes('vaso-occlusive') &&
+      capturedPrompt.includes('biorepository') && capturedPrompt.includes('NVivo'),
+    capturedPrompt ? `prompt ${capturedPrompt.length} chars` : 'no prompt captured');
+  check('Prompt still enumerates all 43 criteria for the cohort protocol',
+    (capturedPrompt.match(/"criterion"/g) || []).length === 43);
+  check('Review modal shows all 43 selects for the cohort protocol',
+    (await page.locator('#review-items-container select').count()) === 43);
+
+  await page.click('button:has-text("Apply")');
+  await page.waitForSelector('#review-modal.hidden', { state: 'attached', timeout: 10000 });
+  const hemApplied = await page.evaluate(() => ({
+    core: { ...scores }, supp: { ...scores6 }
+  }));
+  check('Cohort protocol scores applied to all 36 core items', Object.keys(hemApplied.core).length === 36);
+  check('Cohort protocol scores applied to all 7 supplemental (Dimension 6) items',
+    Object.keys(hemApplied.supp).length === 7);
 
   // ── Unsupported file type.
   alerts.length = 0;
