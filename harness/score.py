@@ -4,11 +4,15 @@ Rubric, weights, truncation limit and decision matrix are read from the tool's
 index.html at runtime (see rubric.py), so scores stay consistent with the app.
 Model calls go to Anthropic using ANTHROPIC_API_KEY from the macOS Keychain.
 """
-import json, subprocess, sys, urllib.request, pathlib, argparse, re, time
+import json, os, subprocess, sys, urllib.request, pathlib, argparse, re, time
 import rubric
 
-DOCS = [pathlib.Path("/Users/jhodges/Documents/HEM Protocols"),
-        pathlib.Path("/Users/jhodges/Library/Mobile Documents/com~apple~CloudDocs/CTM Activity/HEM Protocols")]
+# Directories searched for protocol documents. Set HEM_PROTOCOL_DIRS to a
+# colon-separated list; defaults to ./protocols beside this script.
+DOCS = [pathlib.Path(d).expanduser() for d in os.environ.get(
+            "HEM_PROTOCOL_DIRS",
+            str(pathlib.Path(__file__).resolve().parent / "protocols")
+        ).split(":") if d.strip()]
 # extra filename spellings to also match (source typos, or exports whose name
 # extends the mnemonic). Additive - the mnemonic itself is always tried too.
 ALIAS = {"RUHPIS": ["RUPHIS"], "ASHRCDC": ["ASGRCDC", "ASHRCData"], "ATHN": ["ATHNdataset"], "4WARDXP": ["4WARDXP_ocr"]}

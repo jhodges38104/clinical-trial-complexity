@@ -30,7 +30,12 @@ Results are written per protocol to `results/<MNEMONIC>.json` as they complete,
 which makes batches resumable — an already-scored protocol is skipped unless
 `--force` is passed.
 
-Edit `DOCS` in `score.py` to point at your protocol directories.
+Point the harness at your protocol directories with `HEM_PROTOCOL_DIRS`
+(colon-separated); it otherwise looks in `./protocols` beside the script:
+
+```bash
+export HEM_PROTOCOL_DIRS="/path/to/protocols:/another/path"
+```
 
 ## What it guards against
 
