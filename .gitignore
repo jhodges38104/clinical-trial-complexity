@@ -12,3 +12,6 @@ tests/fixtures/sample-protocol-long.docx
 tests/fixtures/sample-protocol-long.pdf
 tests/fixtures/sample-protocol-hem-cohort.docx
 tests/fixtures/sample-protocol-hem-cohort.pdf
+
+# R session history
+.Rhistory
