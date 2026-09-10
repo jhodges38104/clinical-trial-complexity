@@ -15,3 +15,9 @@ tests/fixtures/sample-protocol-hem-cohort.pdf
 
 # R session history
 .Rhistory
+
+# harness results quote protocol text — keep local
+harness/results/
+harness/results_43item_backup/
+harness/__pycache__/
+*.py.bak*
