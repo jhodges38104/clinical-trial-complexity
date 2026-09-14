@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clinical Trial Complexity Assessment Tool</title>
-  <meta name="description" content="Interactive go/no-go decision support tool for assessing clinical trial complexity across 5 core dimensions (36 criteria), plus a supplemental data/specimen complexity module for non-interventional studies.">
+  <meta name="description" content="Interactive go/no-go decision support tool for assessing clinical trial complexity across 5 core dimensions (37 criteria), plus a supplemental data/specimen complexity module for non-interventional studies.">
   <script src="lib/tailwind.min.js"></script>
   <script src="lib/chart.umd.min.js"></script>
   <script src="lib/pdf.min.js"></script>
@@ -82,7 +82,7 @@
         <svg class="w-6 h-6 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <h1 class="text-xl font-bold tracking-tight">Clinical Trial Complexity Assessment</h1>
       </div>
-      <p class="text-blue-200 text-xs mt-0.5 ml-8">Go / No-Go Decision Support · 5 Dimensions · 36 Criteria · + Supplemental Data/Specimen Module · OPAL / EFACCT Framework</p>
+      <p class="text-blue-200 text-xs mt-0.5 ml-8">Go / No-Go Decision Support · 5 Dimensions · 37 Criteria · + Supplemental Data/Specimen Module · OPAL / EFACCT Framework</p>
     </div>
     <div class="flex items-center gap-2">
       <span id="progress-pill" class="bg-blue-700 text-blue-100 text-xs px-3 py-1 rounded-full font-medium">0 / 36 scored</span>
@@ -420,7 +420,7 @@ const DIMS = [
   },
   {
     id:4, name:"Resource & Workforce Capacity",
-    weight:1.3, maxRaw:24, maxWt:31.2, rfThresh:17,
+    weight:1.3, maxRaw:27, maxWt:35.1, rfThresh:19,
     color:"#f59e0b", bg:"#fffbeb",
     items:[
       {id:"4.1", name:"Coordinator Time Required", opts:[
@@ -470,6 +470,12 @@ const DIMS = [
         {s:1,d:"Extended follow-up 1–5 years post-treatment, low-intensity"},
         {s:2,d:"Extended follow-up 5–10 years, periodic visits or specialized monitoring"},
         {s:3,d:"Extended follow-up >10 years (e.g., 15-year gene therapy LTFU), sustained visits, specialized long-term safety monitoring"}
+      ]},
+      {id:"4.9", name:"Per-Participant Procedural Intensity", opts:[
+        {s:0,d:"Routine visits — labs, questionnaires, standard imaging"},
+        {s:1,d:"Extended visits or minor procedures — infusion, serial PK sampling"},
+        {s:2,d:"Invasive or multi-hour procedures — biopsy, apheresis, sedation, telemetry"},
+        {s:3,d:"Multi-day inpatient or chained procedures — mobilization + apheresis, conditioning"}
       ]}
     ]
   },
@@ -519,7 +525,7 @@ const DIMS = [
   }
 ];
 
-const TOTAL_MAX_WT = 132.9; // 25.2 (D1) + 40.5 (D2) + 18 (D3) + 31.2 (D4) + 18 (D5) — Dimension 6 is supplemental and excluded
+const TOTAL_MAX_WT = 136.8; // 25.2 (D1) + 40.5 (D2) + 18 (D3) + 35.1 (D4) + 18 (D5) — Dimension 6 is supplemental and excluded
 
 // Decision matrix rows
 const MATRIX = [
