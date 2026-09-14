@@ -35,7 +35,8 @@ function check(name, pass, detail) {
 
 for (const f of [
   'sample-protocol.docx', 'sample-protocol.pdf',
-  'sample-protocol-long.docx', 'sample-protocol-hem-cohort.docx'
+  'sample-protocol-long.docx', 'sample-protocol-hem-cohort.docx',
+  'sample-protocol-legacy.doc'
 ]) {
   if (!fs.existsSync(path.join(FIXTURES, f))) {
     console.error(`Missing fixture ${f} — run: node tests/make-fixtures.js`);
@@ -234,6 +235,33 @@ for (const f of [
   check('Cohort protocol scores applied to all 7 supplemental (Dimension 6) items',
     Object.keys(hemApplied.supp).length === 7);
 
+  // ── Legacy .doc upload — a real OLE2 Compound File binary, not the OOXML
+  // zip mammoth parses. The upload zone accepts .doc by extension, so this
+  // confirms it fails with clear guidance instead of the generic
+  // API-key/network message extractDOCX() used to surface when mammoth
+  // choked on the missing zip signature.
+  await page.evaluate(() => clearUpload());
+  alerts.length = 0;
+  capturedPrompt = null;
+  await page.setInputFiles('#file-input', path.join(FIXTURES, 'sample-protocol-legacy.doc'));
+  const legacyReady = await page.evaluate(() => ({
+    name: document.getElementById('upload-filename').textContent,
+    enabled: !document.getElementById('analyze-btn').disabled
+  }));
+  check('Legacy .doc accepted by upload zone (extension allow-list)',
+    legacyReady.name === 'sample-protocol-legacy.doc' && legacyReady.enabled,
+    JSON.stringify(legacyReady));
+
+  await page.click('#analyze-btn');
+  await page.waitForTimeout(1000);
+  check('Legacy .doc shows guidance to re-save as .docx or PDF, not a generic error',
+    alerts.some(a => /re-save it as \.docx/i.test(a)) &&
+      !alerts.some(a => /check your api key/i.test(a)),
+    JSON.stringify(alerts));
+  check('Legacy .doc never reaches the review modal',
+    await page.evaluate(() => document.getElementById('review-modal').classList.contains('hidden')));
+  check('Legacy .doc never calls the AI endpoint', capturedPrompt === null);
+
   // ── Unsupported file type.
   alerts.length = 0;
   await page.setInputFiles('#file-input', path.join(FIXTURES, 'sample-protocol.txt'));
@@ -242,8 +270,11 @@ for (const f of [
     alerts.some(a => /PDF, DOCX, or DOC/i.test(a)), JSON.stringify(alerts));
 
   // ── Runtime error surface.
+  // LEGACY_DOC is console.error'd deliberately by the same catch block that
+  // logs every analyze failure — expected here since the legacy-.doc upload
+  // above is a handled, user-facing rejection, not an app bug.
   check('No uncaught page errors', pageErrors.length === 0, pageErrors.join(' | '));
-  const realErrors = consoleErrors.filter(e => !/favicon/i.test(e));
+  const realErrors = consoleErrors.filter(e => !/favicon/i.test(e) && !/LEGACY_DOC/.test(e));
   check('No console errors', realErrors.length === 0, realErrors.slice(0, 3).join(' | '));
   const realFailed = failedRequests.filter(r => !/favicon/i.test(r));
   check('No failed network requests', realFailed.length === 0, realFailed.slice(0, 3).join(' | '));

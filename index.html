@@ -413,6 +413,69 @@ function setProgress(pct, label){
   }
 }
 
+// Legacy Word 97-2003 .doc files are OLE2 Compound File binaries, not the
+// Office Open XML zip that mammoth parses. The upload zone accepts .doc by
+// extension, but feeding one to mammoth just fails on the zip signature and
+// surfaces as a generic, misleading error. Detect the OLE2 magic number up
+// front and fail with guidance instead.
+const OLE2_SIGNATURE = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
+function isLegacyDoc(arrayBuffer) {
+  const head = new Uint8Array(arrayBuffer.slice(0, OLE2_SIGNATURE.length));
+  return head.length === OLE2_SIGNATURE.length &&
+    OLE2_SIGNATURE.every((b, i) => head[i] === b);
+}
+
+async function extractDOCX(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (isLegacyDoc(e.target.result)) {
+        reject(new Error('LEGACY_DOC: This looks like a legacy .doc file (the old Word 97-2003 binary ' +
+          'format), which this tool can\'t read directly. Please re-save it as .docx in Word ' +
+          '(File → Save As → Word Document) or export it to PDF, then upload again.'));
+        return;
+      }
+      if (!window.mammoth) { reject(new Error('Mammoth library not loaded. Please refresh.')); return; }
+      mammoth.extractRawText({ arrayBuffer: e.target.result })
+        .then(result => resolve(normalizeExtractedText(result.value)))
+        .catch(reject);
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function buildPrompt(protocolText) {
+  const MAX_CHARS = 80000;
+  let text = protocolText.trim();
+  const truncated = text.length > MAX_CHARS;
+  if (truncated) text = text.slice(0, MAX_CHARS);
+
+  const itemList = [];
+  [...DIMS, DIM6].forEach(dim => {
+    dim.items.forEach(item => {
+      itemList.push({
+        id: item.id,
+        criterion: item.name,
+        dimension: dim.name,
+        scale: item.opts.map((o, i) => i + ': ' + o.d).join(' | ')
+      });
+    });
+  });
+
+  const truncNote = truncated
+    ? '\n[Protocol text truncated to 80,000 characters due to context limits — focus on the content provided.]'
+    : '';
+
+  return `You are an expert clinical trial feasibility analyst. Read the protocol text below and score each of the ${itemList.length} complexity criteria on a 0–3 scale. The last 7 items (6.x) cover study-design modality and data/specimen complexity (qualitative methods, EMR abstraction, biospecimens, PROs, longitudinal scale) — for a standard interventional drug/device trial these will usually score 0; only score them higher if the protocol actually describes that kind of work.
+
+SCORING CRITERIA (${itemList.length} items):
+${JSON.stringify(itemList, null, 2)}
+
+Return ONLY a valid JSON object with exactly this structure:
+{
+  "scores": {
+    "<item_id>": { "score": <integer 0-3>, "rationale": "<1-2 sentence evidence-based explanation>" }
 async function extractPdfText(arrayBuffer){
   const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
   let fullText = '';
@@ -454,6 +517,30 @@ async function handleFile(file){
     if(!text || text.trim().length < 50){
       showError('Could not extract readable text from this file. Try pasting the text instead.');
       return;
+    }
+
+    updateAnalysisModal('Sending to AI for analysis… (30–90 seconds)', 45);
+    const prompt = buildPrompt(text);
+    const result = await callOpenAI(prompt, apiKey);
+
+    updateAnalysisModal('Processing AI response…', 90);
+    if (!result || !result.scores) throw new Error('Unexpected response format from AI.');
+    pendingScores = result.scores;
+    hideAnalysisModal();
+    showReviewModal();
+
+  } catch(err) {
+    hideAnalysisModal();
+    console.error('Protocol analysis error:', err);
+    const msg = err.message || '';
+    if (msg.startsWith('LEGACY_DOC:')) {
+      alert(msg.slice('LEGACY_DOC:'.length).trim());
+    } else if (msg.includes('401') || msg.toLowerCase().includes('incorrect api key') || msg.toLowerCase().includes('invalid api key')) {
+      sessionStorage.removeItem('openai_api_key');
+      alert('Invalid API key. Please re-enter your OpenAI API key.');
+      openApiKeyModal();
+    } else {
+      alert('Analysis failed: ' + msg + '\n\nCheck your API key and internet connection.');
     }
     setProgress(100, 'Analysis complete');
     analyzeText(text, file.name);

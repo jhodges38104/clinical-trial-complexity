@@ -12,12 +12,4 @@ tests/fixtures/sample-protocol-long.docx
 tests/fixtures/sample-protocol-long.pdf
 tests/fixtures/sample-protocol-hem-cohort.docx
 tests/fixtures/sample-protocol-hem-cohort.pdf
-
-# R session history
-.Rhistory
-
-# harness results quote protocol text — keep local
-harness/results/
-harness/results_43item_backup/
-harness/__pycache__/
-*.py.bak*
+tests/fixtures/sample-protocol-legacy.doc
